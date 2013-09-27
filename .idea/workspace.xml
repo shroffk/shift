@@ -254,10 +254,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FindShiftsQuery.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="FindShiftsQuery.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/bnl/gov/shift/FindShiftsQuery.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="277" column="0" selection-start="10452" selection-end="10452" vertical-scroll-proportion="0.0">
+            <state line="219" column="0" selection-start="8102" selection-end="8102" vertical-scroll-proportion="0.33333334">
               <folding>
                 <element signature="e#843#851#0" expanded="true" />
                 <element signature="e#912#920#0" expanded="true" />
@@ -295,10 +295,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UpdateShiftQuery.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="UpdateShiftQuery.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/bnl/gov/shift/UpdateShiftQuery.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="0" selection-start="698" selection-end="698" vertical-scroll-proportion="0.33333334">
+            <state line="26" column="0" selection-start="698" selection-end="698" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -803,18 +803,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/bnl/gov/shift/FindShiftsQuery.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="277" column="0" selection-start="10452" selection-end="10452" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#843#851#0" expanded="true" />
-            <element signature="e#912#920#0" expanded="true" />
-            <element signature="e#2905#2913#0" expanded="true" />
-            <element signature="e#3011#3019#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/bnl/gov/shift/DbConnection.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="59" column="0" selection-start="1752" selection-end="1752" vertical-scroll-proportion="0.0">
@@ -847,8 +835,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/bnl/gov/shift/UpdateShiftQuery.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="698" selection-end="698" vertical-scroll-proportion="0.33333334">
+        <state line="26" column="0" selection-start="698" selection-end="698" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/bnl/gov/shift/FindShiftsQuery.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="219" column="0" selection-start="8102" selection-end="8102" vertical-scroll-proportion="0.33333334">
+          <folding>
+            <element signature="e#843#851#0" expanded="true" />
+            <element signature="e#912#920#0" expanded="true" />
+            <element signature="e#2905#2913#0" expanded="true" />
+            <element signature="e#3011#3019#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
