@@ -79,7 +79,7 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            result = shiftManager.findShiftById(Long.parseLong(shiftId));
+            result = shiftManager.findShiftById(shiftId);
             db.commit();
             Response r;
             if (result == null) {
@@ -110,9 +110,7 @@ public class ShiftResource {
     public Response create(XMLShift newShift) {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
-        final UserManager um = UserManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
-        um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
             if (shiftManager.getOpenShift() != null) {
                 throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
@@ -120,15 +118,11 @@ public class ShiftResource {
             }
             db.getConnection();
             db.beginTransaction();
-            shiftManager.startShift(newShift);
+            final XMLShift result = shiftManager.startShift(newShift);
             db.commit();
-            Response r = Response.noContent().build();
-            audit.info(um.getUserName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()
-                    + "|data=" + XMLShift.toLog(newShift));
+            Response r =  Response.ok(result).build();
             return r;
         } catch (ShiftFinderException e) {
-            log.warning(um.getUserName() + "|" + uriInfo.getPath() + "|PUT|ERROR|" + e.getResponseStatusCode()
-                    + "|data=" + XMLShift.toLog(newShift) + "|cause=" + e);
             return e.toResponse();
         } finally {
             db.releaseConnection();
@@ -147,21 +141,15 @@ public class ShiftResource {
     public Response endShift(XMLShift shift) {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
-        final UserManager um = UserManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
-        um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
             db.getConnection();
             db.beginTransaction();
-            shiftManager.endShift(shift);
+            final XMLShift result = shiftManager.endShift(shift);
             db.commit();
-            Response r = Response.noContent().build();
-            audit.info(um.getUserName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()
-                    + "|data=" + XMLShift.toLog(shift));
+            Response r =  Response.ok(result).build();
             return r;
         } catch (ShiftFinderException e) {
-            log.warning(um.getUserName() + "|" + uriInfo.getPath() + "|PUT|ERROR|" + e.getResponseStatusCode()
-                    + "|data=" + XMLShift.toLog(shift) + "|cause=" + e);
             return e.toResponse();
         } finally {
             db.releaseConnection();

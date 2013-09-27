@@ -22,10 +22,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="shift@" />
+        <module name="Shift" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="Shift" target="1.6" />
       <module name="shift@" target="1.6" />
     </bytecodeTargetLevel>
   </component>

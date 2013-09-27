@@ -33,10 +33,11 @@ public class XMLShift {
      * @param owner owner name
      * @param startDate
      */
-    public XMLShift(final Long id, final String owner, final Date startDate) {
+    public XMLShift(final Long id, final String owner, final Date startDate, final Date endDate) {
         this.id = id;
         this.owner = owner;
         this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     /**

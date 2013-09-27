@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import javax.ws.rs.core.Response;
 
 /**
@@ -29,13 +30,12 @@ public class CreateShiftQuery {
     private void executeQuery(final Connection con) throws ShiftFinderException {
         final PreparedStatement ps;
         // Insert shift
-        //TODO: check if any shift do not have a end date, if so please return the open shift
         StringBuilder query = new StringBuilder("INSERT INTO shift (id, owner, start_date) VALUE (?, ?, ?)");
         try {
             ps = con.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, shift.getId());
             ps.setString(2, shift.getOwner());
-            ps.setLong(3, System.currentTimeMillis());
+            ps.setTimestamp(3, new java.sql.Timestamp(shift.getStartDate().getTime()));
             ps.execute();
             ResultSet rs = ps.getGeneratedKeys();
             rs.first();
@@ -54,6 +54,7 @@ public class CreateShiftQuery {
      * @throws ShiftFinderException wrapping an SQLException
      */
     public static XMLShift createShift(final XMLShift shift) throws ShiftFinderException {
+        shift.setStartDate(new Date());
         final CreateShiftQuery q = new CreateShiftQuery(shift);
         q.executeQuery(DbConnection.getInstance().getConnection());
         return shift;

@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gov.bnl.shift</groupId>
     <artifactId>Shift</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>Shift Client API</name>
     <licenses>
@@ -16,6 +16,7 @@
         <netbeans.hint.deploy.server>gfv3ee6</netbeans.hint.deploy.server>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <servlet.port>8080</servlet.port>
     </properties>
 
     <repositories>
@@ -53,9 +54,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>1.17.1</version>
+            <groupId>com.sun.jersey.glassfish.v3</groupId>
+            <artifactId>jersey-gfv3-core</artifactId>
+            <version>1.13</version>
+            <scope>provided</scope>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -81,6 +84,25 @@
                     <source>1.6</source>
                     <target>1.6</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Build-Number>${env.BUILD_NUMBER}</Build-Number>
+                            <Build-Id>${env.BUILD_ID}</Build-Id>
+                            <Build-Tag>${env.BUILD_TAG}</Build-Tag>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>

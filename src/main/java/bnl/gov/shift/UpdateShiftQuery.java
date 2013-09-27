@@ -1,6 +1,8 @@
 package bnl.gov.shift;
 
 import java.sql.*;
+import java.util.*;
+import java.util.Date;
 import javax.ws.rs.core.Response;
 
 /**
@@ -22,7 +24,7 @@ public class UpdateShiftQuery {
         final StringBuilder query = new StringBuilder("UPDATE shift set end_date = ? WHERE id = ?");
         try {
             ps = con.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
-            ps.setLong(1, System.currentTimeMillis());
+            ps.setTimestamp(1, new java.sql.Timestamp(shift.getEndDate().getTime()));
             ps.setLong(2, shift.getId());
             ps.execute();
             ResultSet rs = ps.getGeneratedKeys();
@@ -39,11 +41,14 @@ public class UpdateShiftQuery {
     /**
      * Updates the <tt>endDate</tt> in the database, adding it to the shift.
      *
+     *
      * @param shift XMLShift
      * @throws ShiftFinderException wrapping an SQLException
      */
-    public static void updateEndDateShift(XMLShift shift) throws ShiftFinderException {
+    public static XMLShift updateEndDateShift(final XMLShift shift) throws ShiftFinderException {
+        shift.setEndDate(new Date());
         UpdateShiftQuery q = new UpdateShiftQuery(shift);
         q.executeQuery(DbConnection.getInstance().getConnection());
+        return shift;
     }
 }

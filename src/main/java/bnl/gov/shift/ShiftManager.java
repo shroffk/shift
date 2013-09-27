@@ -28,11 +28,12 @@ public class ShiftManager {
     /**
      * Return single shift found by shift id.
      *
+     *
      * @param shiftId id to look for
      * @return XMLShift with found shift
      * @throws ShiftFinderException on SQLException
      */
-    public XMLShift findShiftById(final Long shiftId) throws ShiftFinderException {
+    public XMLShift findShiftById(final String shiftId) throws ShiftFinderException {
         return FindShiftsQuery.findShiftById(shiftId);
     }
 
@@ -54,11 +55,12 @@ public class ShiftManager {
      * Add the end Date to a shift
      * specified in the XMLShift <tt>shift</tt>.
      *
+     *
      * @param shift XMLShift shift to end
      * @throws ShiftFinderException on ownership mismatch, or wrapping an SQLException
      */
-    public void endShift(final XMLShift shift) throws ShiftFinderException {
-        UpdateShiftQuery.updateEndDateShift(shift);
+    public XMLShift endShift(final XMLShift shift) throws ShiftFinderException {
+        return UpdateShiftQuery.updateEndDateShift(shift);
     }
 
     /**

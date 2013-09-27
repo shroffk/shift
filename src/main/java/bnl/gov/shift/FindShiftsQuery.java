@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +26,7 @@ public class FindShiftsQuery {
     private List<String> shift_owners = new LinkedList<String>();
     private List<String> shift_start_dates = new LinkedList<String>();
     private List<String> shift_end_dates = new LinkedList<String>();
+    private boolean endDateIsEmpty = false;
     private PreparedStatement ps;
 
     /**
@@ -55,8 +55,8 @@ public class FindShiftsQuery {
         }
     }
 
-    private FindShiftsQuery(final Collection<String> matches) {
-        shift_ids.addAll(matches);
+    private FindShiftsQuery(final boolean endDateIsEmpty) {
+        this.endDateIsEmpty = endDateIsEmpty;
     }
 
     private FindShiftsQuery(final String shiftId) {
@@ -75,10 +75,10 @@ public class FindShiftsQuery {
         //TODO: get the correct sql for this query
         //TODO: still need to get the from to right
         StringBuilder query = new StringBuilder();
-        List<Long> id_params = new LinkedList<Long>();       // parameter lists for the outer query
+        List<String> id_params = new LinkedList<String>();       // parameter lists for the outer query
         List<String> name_params = new LinkedList<String>();
         //no paramethers where pass, in this case return the most recently created shift
-        if(shift_owners.isEmpty() && shift_end_dates.isEmpty() && shift_start_dates.isEmpty() && shift_ids.isEmpty()) {
+        if(shift_owners.isEmpty() && shift_end_dates.isEmpty() && shift_start_dates.isEmpty() && shift_ids.isEmpty() && !endDateIsEmpty) {
             query.append("SELECT * FROM shift ORDER BY start_date DESC limit 1");
         } else {
             boolean used = false;
@@ -88,7 +88,7 @@ public class FindShiftsQuery {
                 query.append("id IN (");
                 for (String i : shift_ids) {
                     query.append("?,");
-                    id_params.add(Long.parseLong(i));
+                    id_params.add(i);
                 }
                 query.replace(query.length() - 1, query.length(), ")");
 
@@ -105,14 +105,38 @@ public class FindShiftsQuery {
                 }
                 query.replace(query.length() - 1, query.length(), ")");
             }
+            if (!shift_start_dates.isEmpty()) {
+                if(used) {
+                    query.append(" AND ");
+                }
+                query.append(" start_date >= ");
+                used = true;
+                query.append("? ");
+                name_params.add(shift_start_dates.get(0));
+            }
+            if (!shift_end_dates.isEmpty()) {
+                if(used) {
+                    query.append(" AND ");
+                }
+                query.append(" start_date <= ");
+                used = true;
+                query.append("? ");
+                name_params.add(shift_end_dates.get(0));
+            }
+            if(endDateIsEmpty) {
+                if(used) {
+                    query.append(" AND ");
+                }
+                query.append(" end_date is null");
+            }
 
             query.append(" ORDER BY start_date DESC");
         }
         try {
             ps = con.prepareStatement(query.toString());
             int i = 1;
-            for (long p : id_params) {
-                ps.setLong(i++, p);
+            for (String p : id_params) {
+                ps.setString(i++, p);
             }
             for (String s : name_params) {
                 ps.setString(i++, s);
@@ -198,9 +222,9 @@ public class FindShiftsQuery {
             Long lastShift = null;
             if (!rs.equals(null)) {
                 while (rs.next()) {
-                    final Long thisShift = rs.getLong("shift");
+                    final Long thisShift = rs.getLong("id");
                     if (!thisShift.equals(lastShift) || rs.isFirst()) {
-                        xmlShift = new XMLShift(thisShift, rs.getString("owner"), rs.getDate("startDate"));
+                        xmlShift = new XMLShift(thisShift, rs.getString("owner"), rs.getDate("start_date"), rs.getDate("end_date"));
                         xmlShifts.addXMLShift(xmlShift);
                         lastShift = thisShift;
                     }
@@ -219,20 +243,21 @@ public class FindShiftsQuery {
     /**
      * Return single shift found by shift id.
      *
+     *
      * @param shiftId id to look for
      * @return XMLShift with found shift
      * @throws ShiftFinderException on SQLException
      */
-    public static XMLShift findShiftById(final Long shiftId) throws ShiftFinderException {
-        FindShiftsQuery q = new FindShiftsQuery(shiftId.toString());
+    public static XMLShift findShiftById(final String shiftId) throws ShiftFinderException {
+        FindShiftsQuery q = new FindShiftsQuery(shiftId);
         XMLShift xmlShift = null;
         try {
             ResultSet rs = q.executeQuery(DbConnection.getInstance().getConnection());
             if (rs != null) {
                 while (rs.next()) {
-                    String thisShift = rs.getString("shift");
+                    String thisShift = rs.getString("id");
                     if (rs.isFirst()) {
-                        xmlShift = new XMLShift(Long.parseLong(thisShift), rs.getString("owner"), rs.getDate("startDate"));
+                        xmlShift = new XMLShift(Long.parseLong(thisShift), rs.getString("owner"), rs.getDate("start_date"), rs.getDate("end_date"));
                     }
                 }
                 rs.close();
@@ -246,15 +271,15 @@ public class FindShiftsQuery {
     }
 
     public static XMLShift getOpenShift() throws  ShiftFinderException {
-        FindShiftsQuery q = new FindShiftsQuery("*");
+        FindShiftsQuery q = new FindShiftsQuery(true);
         XMLShift xmlShift = null;
         try {
             ResultSet rs = q.executeQuery(DbConnection.getInstance().getConnection());
-            if (rs != null) {
+                if (rs != null) {
                 while (rs.next()) {
-                    String thisShift = rs.getString("shift");
+                    String thisShift = rs.getString("id");
                     if (rs.isFirst()) {
-                        xmlShift = new XMLShift(Long.parseLong(thisShift), rs.getString("owner"), rs.getDate("startDate"));
+                        xmlShift = new XMLShift(Long.parseLong(thisShift), rs.getString("owner"), rs.getDate("start_date"), rs.getDate("end_date"));
                     }
                 }
                 rs.close();
