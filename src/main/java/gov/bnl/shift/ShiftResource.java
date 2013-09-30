@@ -35,6 +35,8 @@ public class ShiftResource {
     /**
      * GET method for retrieving a collection of shift instances,
      * based on a multi-parameter query specifiying patterns, id, from-to startDate or owner name
+     * Only allow one date from the from and to query, if multiple dates appear on the url, the first ones will be the ones to use
+     * "*" will be used as a wild card to retrive all the shifts
      *
      * @return HTTP Response
      */

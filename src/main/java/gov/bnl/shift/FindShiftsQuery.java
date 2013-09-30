@@ -24,8 +24,8 @@ public class FindShiftsQuery {
     private Multimap<String, String> value_matches = ArrayListMultimap.create();
     private List<String> shift_ids = new LinkedList<String>();
     private List<String> shift_owners = new LinkedList<String>();
-    private List<String> shift_start_dates = new LinkedList<String>();
-    private List<String> shift_end_dates = new LinkedList<String>();
+    private String shift_start_date;
+    private String shift_end_date;
     private boolean endDateIsEmpty = false;
     private PreparedStatement ps;
 
@@ -43,10 +43,12 @@ public class FindShiftsQuery {
             final String key = match.getKey().toLowerCase();
             if (key.equals("id")) {
                 shift_ids.addAll(match.getValue());
+            //Only allow one date to query for from and to, if multiple ones appear on the query only use the first one
             } else if(key.equals("from")) {
-                shift_start_dates.addAll(match.getValue());
+                shift_start_date = match.getValue().get(0);
+            //Only allow one date to query for from and to, if multiple ones appear on the query only use the first one
             } else if (key.equals("to")) {
-                shift_end_dates.addAll(match.getValue());
+                shift_end_date = match.getValue().get(0);
             } else if (key.equals("owner")) {
                 shift_owners.addAll(match.getValue());
             } else {
@@ -76,14 +78,15 @@ public class FindShiftsQuery {
         List<String> id_params = new LinkedList<String>();       // parameter lists for the outer query
         List<String> name_params = new LinkedList<String>();
         //no paramethers where pass, in this case return the most recently created shift
-        if(shift_owners.isEmpty() && shift_end_dates.isEmpty() && shift_start_dates.isEmpty() && shift_ids.isEmpty() && !endDateIsEmpty) {
+        if(shift_owners.isEmpty() && shift_end_date == null && shift_start_date == null && shift_ids.isEmpty() && !endDateIsEmpty) {
             query.append("SELECT * FROM shift ORDER BY start_date DESC limit 1");
         } else {
             boolean used = false;
-            query.append("SELECT * FROM shift WHERE ");
-            if (!shift_ids.isEmpty()) {
+            query.append("SELECT * FROM shift ");
+            //if the use gives * as id return all the shifts
+            if (!shift_ids.isEmpty() && !shift_ids.contains("*")) {
                 used = true;
-                query.append("id IN (");
+                query.append("WHERE id IN (");
                 for (String i : shift_ids) {
                     query.append("?,");
                     id_params.add(i);
@@ -91,9 +94,11 @@ public class FindShiftsQuery {
                 query.replace(query.length() - 1, query.length(), ")");
 
             }
-            if (!shift_owners.isEmpty()) {
+            if (!shift_owners.isEmpty() && !shift_owners.contains("*")) {
                 if(used) {
                     query.append(" AND ");
+                } else {
+                    query.append(" WHERE ");
                 }
                 query.append(" owner IN (");
                 used = true;
@@ -103,23 +108,27 @@ public class FindShiftsQuery {
                 }
                 query.replace(query.length() - 1, query.length(), ")");
             }
-            if (!shift_start_dates.isEmpty()) {
+            if (shift_start_date != null && !shift_start_date.equals("*")) {
                 if(used) {
                     query.append(" AND ");
+                } else {
+                    query.append(" WHERE ");
                 }
                 query.append(" start_date >= ");
                 used = true;
                 query.append("? ");
-                name_params.add(shift_start_dates.get(0));
+                name_params.add(shift_start_date);
             }
-            if (!shift_end_dates.isEmpty()) {
+            if (shift_end_date != null && !shift_end_date.equals("*")) {
                 if(used) {
                     query.append(" AND ");
+                } else {
+                    query.append(" WHERE ");
                 }
                 query.append(" start_date <= ");
                 used = true;
                 query.append("? ");
-                name_params.add(shift_end_dates.get(0));
+                name_params.add(shift_end_date);
             }
             if(endDateIsEmpty) {
                 if(used) {
@@ -212,10 +221,10 @@ public class FindShiftsQuery {
      */
     public static XMLShifts findShiftsByMultiMatch(final MultivaluedMap<String, String> matches) throws ShiftFinderException {
         FindShiftsQuery q = new FindShiftsQuery(matches);
-        XMLShifts xmlShifts = new XMLShifts();
+        final XMLShifts xmlShifts = new XMLShifts();
         XMLShift xmlShift = null;
         try {
-                ResultSet rs = q.executeQuery(DbConnection.getInstance().getConnection());
+                final ResultSet rs = q.executeQuery(DbConnection.getInstance().getConnection());
 
             Long lastShift = null;
             if (!rs.equals(null)) {
