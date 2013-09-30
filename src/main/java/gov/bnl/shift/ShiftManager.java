@@ -1,6 +1,7 @@
 package gov.bnl.shift;
 
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 /**
  *
@@ -50,6 +51,24 @@ public class ShiftManager {
         return FindShiftsQuery.findShiftsByMultiMatch(matches);
     }
 
+    /**
+     * Check that <tt>user</tt> belongs to the owner group specified in the
+     * shift <tt>shift</tt>.
+     *
+     * @param user user name
+     * @param shift XMLShift shift to check ownership for
+     * @throws ShiftFinderException on name mismatch
+     */
+    public void checkUserBelongsToGroup(String user, XMLShift shift) throws ShiftFinderException {
+        if (shift == null) return;
+        UserManager um = UserManager.getInstance();
+        if (!um.userIsInGroup(shift.getOwner())) {
+            throw new ShiftFinderException(Response.Status.FORBIDDEN,
+                    "User '" + um.getUserName()
+                            + "' does not belong to owner group '" + shift.getOwner()
+                            + "' of shift '" + shift.getId() + "'");
+        }
+    }
 
     /**
      * Add the end Date to a shift
