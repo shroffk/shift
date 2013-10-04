@@ -133,6 +133,8 @@ public class FindShiftsQuery {
             if(endDateIsEmpty) {
                 if(used) {
                     query.append(" AND ");
+                } else {
+                    query.append(" WHERE ");
                 }
                 query.append(" end_date is null");
             }

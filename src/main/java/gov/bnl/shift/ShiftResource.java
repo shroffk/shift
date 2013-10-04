@@ -77,9 +77,8 @@ public class ShiftResource {
         audit.info("getting shift:" + shiftId);
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
-        UserManager um = UserManager.getInstance();
-        System.out.println(securityContext.getUserPrincipal());
-        um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
+        final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
+        System.out.println(user);
         XMLShift result = null;
         try {
             db.getConnection();
@@ -92,10 +91,10 @@ public class ShiftResource {
             } else {
                 r = Response.ok(result).build();
             }
-            log.fine(um.getUserName() + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus());
+            log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus());
             return r;
         } catch (ShiftFinderException e) {
-            log.warning(um.getUserName() + "|" + uriInfo.getPath() + "|GET|ERROR|"
+            log.warning(user + "|" + uriInfo.getPath() + "|GET|ERROR|"
                     + e.getResponseStatusCode() +  "|cause=" + e);
             return e.toResponse();
         } finally {

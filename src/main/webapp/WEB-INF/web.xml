@@ -24,7 +24,7 @@
         <web-resource-collection>
             <web-resource-name>create / update shift(s)</web-resource-name>
             <description/>
-            <url-pattern>/Shift/shift/*</url-pattern>
+            <url-pattern>/shift/*</url-pattern>
             <http-method>PUT</http-method>
         </web-resource-collection>
         <auth-constraint>
