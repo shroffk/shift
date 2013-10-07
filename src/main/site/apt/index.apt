@@ -1,0 +1,15 @@
+~~~
+~~ #%L
+~~ Shift Directory Service
+~~ #L%
+~~~
+
+Shift Overview
+
+  Shift is a directory server, implemented as a REST style web service.
+
+* Basic Operation
+
+ An application sends an HTTP query to the service, specifying an expression that references shifts as an XML or JSON document.
+
+ Other methods allow manipulation of directory entries: start or end.

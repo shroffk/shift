@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<project name="Shift">
+    <bannerLeft>
+        <name>Shift</name>
+    </bannerLeft>
+
+
+    <body>
+        <menu name="Shift">
+            <item name="Overview" href="index.html"/>
+        </menu>
+        <menu ref="reports"/>
+    </body>
+</project>
+
