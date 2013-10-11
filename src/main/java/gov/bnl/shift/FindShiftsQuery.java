@@ -96,7 +96,7 @@ public class FindShiftsQuery {
             }
             if (!shift_owners.isEmpty() && !shift_owners.contains("*")) {
                 if(used) {
-                    query.append(" AND ");
+                    query.append(" OR ");
                 } else {
                     query.append(" WHERE ");
                 }
@@ -110,7 +110,7 @@ public class FindShiftsQuery {
             }
             if (shift_start_date != null && !shift_start_date.equals("*")) {
                 if(used) {
-                    query.append(" AND ");
+                    query.append(" OR ");
                 } else {
                     query.append(" WHERE ");
                 }
@@ -121,7 +121,7 @@ public class FindShiftsQuery {
             }
             if (shift_end_date != null && !shift_end_date.equals("*")) {
                 if(used) {
-                    query.append(" AND ");
+                    query.append(" OR ");
                 } else {
                     query.append(" WHERE ");
                 }
@@ -132,7 +132,7 @@ public class FindShiftsQuery {
             }
             if(endDateIsEmpty) {
                 if(used) {
-                    query.append(" AND ");
+                    query.append(" OR ");
                 } else {
                     query.append(" WHERE ");
                 }
