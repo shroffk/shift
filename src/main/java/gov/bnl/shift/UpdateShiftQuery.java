@@ -23,7 +23,7 @@ public class UpdateShiftQuery {
         final StringBuilder query = new StringBuilder("UPDATE shift set end_date = ? WHERE id = ?");
         try {
             ps = con.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
-            ps.setTimestamp(1, new java.sql.Timestamp(shift.getEndDate().getTime()));
+            ps.setTimestamp(1, new Timestamp(shift.getEndDate().getTime()));
             ps.setLong(2, shift.getId());
             ps.execute();
             ResultSet rs = ps.getGeneratedKeys();

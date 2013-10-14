@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Date;
 import javax.ws.rs.core.Response;
 
@@ -34,7 +35,7 @@ public class CreateShiftQuery {
         try {
             ps = con.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, shift.getOwner());
-            ps.setTimestamp(2, new java.sql.Timestamp(shift.getStartDate().getTime()));
+            ps.setTimestamp(2, new Timestamp(shift.getStartDate().getTime()));
             ps.execute();
             final ResultSet rs = ps.getGeneratedKeys();
             rs.first();
