@@ -114,7 +114,10 @@ public class FindShiftsQuery {
                 } else {
                     query.append(" WHERE ");
                 }
-                query.append(" ( start_date >= ");
+                if (shift_end_date != null && !shift_end_date.equals("*")) {
+                    query.append(" ( ");
+                }
+                query.append(" start_date >= ");
                 used = true;
                 query.append("? ");
                 name_params.add(shift_start_date);
