@@ -30,12 +30,11 @@ public class CreateShiftQuery {
     private void executeQuery(final Connection con) throws ShiftFinderException {
         final PreparedStatement ps;
         // Insert shift
-        final StringBuilder query = new StringBuilder("INSERT INTO shift (id, owner, start_date) VALUE (?, ?, ?)");
+        final StringBuilder query = new StringBuilder("INSERT INTO shift (owner, start_date) VALUE (?, ?)");
         try {
             ps = con.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
-            ps.setLong(1, shift.getId());
-            ps.setString(2, shift.getOwner());
-            ps.setTimestamp(3, new java.sql.Timestamp(shift.getStartDate().getTime()));
+            ps.setString(1, shift.getOwner());
+            ps.setTimestamp(2, new java.sql.Timestamp(shift.getStartDate().getTime()));
             ps.execute();
             final ResultSet rs = ps.getGeneratedKeys();
             rs.first();
