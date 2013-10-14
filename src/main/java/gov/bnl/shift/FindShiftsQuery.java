@@ -114,14 +114,19 @@ public class FindShiftsQuery {
                 } else {
                     query.append(" WHERE ");
                 }
-                query.append(" start_date >= ");
+                query.append(" ( start_date >= ");
                 used = true;
                 query.append("? ");
                 name_params.add(shift_start_date);
             }
             if (shift_end_date != null && !shift_end_date.equals("*")) {
                 if(used) {
-                    query.append(" OR ");
+                    //Do it from to if we have both dates
+                    if (shift_start_date != null && !shift_start_date.equals("*")) {
+                        query.append(" AND ");
+                    } else {
+                        query.append(" OR ");
+                    }
                 } else {
                     query.append(" WHERE ");
                 }
@@ -129,6 +134,9 @@ public class FindShiftsQuery {
                 used = true;
                 query.append("? ");
                 name_params.add(shift_end_date);
+                if (shift_start_date != null && !shift_start_date.equals("*")) {
+                    query.append(" ) ");
+                }
             }
             if(endDateIsEmpty) {
                 if(used) {
