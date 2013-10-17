@@ -49,7 +49,7 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            XMLShifts result = shiftManager.findShiftsByMultiMatch(uriInfo.getQueryParameters());
+            Shifts result = shiftManager.findShiftsByMultiMatch(uriInfo.getQueryParameters());
             db.commit();
             Response r = Response.ok(result).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
@@ -79,7 +79,7 @@ public class ShiftResource {
         final ShiftManager shiftManager = ShiftManager.getInstance();
         final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
         System.out.println(user);
-        XMLShift result = null;
+        Shift result = null;
         try {
             db.getConnection();
             db.beginTransaction();
@@ -111,14 +111,14 @@ public class ShiftResource {
     @PUT
     @Path("start")
     @Consumes({"application/xml", "application/json"})
-    public Response create(XMLShift newShift) {
+    public Response create(Shift newShift) {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         UserManager um = UserManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
         um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
-            final XMLShift openShift = shiftManager.getOpenShift();
+            final Shift openShift = shiftManager.getOpenShift();
             if (openShift != null) {
                 throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                         "The shift " + openShift.getId() + " is still open, please continue using that shift or end it before trying to start a new one");
@@ -128,11 +128,11 @@ public class ShiftResource {
             if (!um.userHasAdminRole()) {
                 shiftManager.checkUserBelongsToGroup(um.getUserName(), newShift);
             }
-            final XMLShift result = shiftManager.startShift(newShift);
+            final Shift result = shiftManager.startShift(newShift);
             db.commit();
             Response r =  Response.ok(result).build();
             audit.info(securityContext.getUserPrincipal().getName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()
-                    + "|data=" + XMLShift.toLog(newShift));
+                    + "|data=" + Shift.toLogger(newShift));
             return r;
         } catch (ShiftFinderException e) {
             return e.toResponse();
@@ -150,18 +150,18 @@ public class ShiftResource {
     @PUT
     @Path("end")
     @Consumes({"application/xml", "application/json"})
-    public Response endShift(XMLShift shift) {
+    public Response endShift(Shift shift) {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
         try {
             db.getConnection();
             db.beginTransaction();
-            final XMLShift result = shiftManager.endShift(shift);
+            final Shift result = shiftManager.endShift(shift);
             db.commit();
             Response r =  Response.ok(result).build();
             audit.info(securityContext.getUserPrincipal().getName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()
-                    + "|data=" + XMLShift.toLog(shift));
+                    + "|data=" + Shift.toLogger(shift));
             return r;
         } catch (ShiftFinderException e) {
             return e.toResponse();

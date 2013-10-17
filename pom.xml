@@ -34,6 +34,12 @@
             <url>http://repo1.maven.org/maven2</url>
         </repository>
         <repository>
+            <id>EclipseLink Repo</id>
+            <url>
+                http://download.eclipse.org/rt/eclipselink/maven.repo
+            </url>
+        </repository>
+        <repository>
             <id>epics</id>
             <name>EPICS Repository</name>
             <url>http://epics.sourceforge.net/maven2/</url>
@@ -64,6 +70,31 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava-collections</artifactId>
             <version>r03</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.core</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.jpa</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.7.5</version>
         </dependency>
     </dependencies>
 
