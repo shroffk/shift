@@ -24,7 +24,7 @@ public class DbConnection {
     private Connection con;
     private DataSource ds;
 
-    private DbConnection() {
+    public DbConnection() {
         try {
             InitialContext ic = new InitialContext();
             ds = (DataSource) ic.lookup("java:comp/env/" + dbResourceName);

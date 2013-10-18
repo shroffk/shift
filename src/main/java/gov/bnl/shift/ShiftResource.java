@@ -41,17 +41,18 @@ public class ShiftResource {
      * @return HTTP Response
      */
     @GET
+    @Path("{type}")
     @Produces({"application/xml", "application/json"})
-    public Response query() {
-        DbConnection db = DbConnection.getInstance();
-        ShiftManager shiftManager = ShiftManager.getInstance();
-        String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
+    public Response query(final @PathParam("type") String type) {
+        final DbConnection db = DbConnection.getInstance();
+        final ShiftManager shiftManager = ShiftManager.getInstance();
+        final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
         try {
             db.getConnection();
             db.beginTransaction();
-            Shifts result = shiftManager.findShiftsByMultiMatch(uriInfo.getQueryParameters());
+            final Shifts result = shiftManager.findShiftsByMultiMatch(type, uriInfo.getQueryParameters());
             db.commit();
-            Response r = Response.ok(result).build();
+            final Response r = Response.ok(result).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
                     + "|returns " + result.getShifts().size() + " shifts");
             return r;
@@ -71,9 +72,9 @@ public class ShiftResource {
      * @return HTTP Response
      */
     @GET
-    @Path("{shiftId}")
+    @Path("{type}/{shiftId}")
     @Produces({"application/xml", "application/json"})
-    public Response read(@PathParam("shiftId") String shiftId) {
+    public Response read(final @PathParam("type") String type, final @PathParam("shiftId") Integer shiftId) {
         audit.info("getting shift:" + shiftId);
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
@@ -83,7 +84,7 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            result = shiftManager.findShiftById(shiftId);
+            result = shiftManager.findShiftById(shiftId, type);
             db.commit();
             Response r;
             if (result == null) {
@@ -111,14 +112,14 @@ public class ShiftResource {
     @PUT
     @Path("start")
     @Consumes({"application/xml", "application/json"})
-    public Response create(Shift newShift) {
+    public Response create(final Shift newShift) {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
-        UserManager um = UserManager.getInstance();
+        final UserManager um = UserManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
         um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
-            final Shift openShift = shiftManager.getOpenShift();
+            final Shift openShift = shiftManager.getOpenShift(newShift.getType());
             if (openShift != null) {
                 throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                         "The shift " + openShift.getId() + " is still open, please continue using that shift or end it before trying to start a new one");
@@ -130,7 +131,7 @@ public class ShiftResource {
             }
             final Shift result = shiftManager.startShift(newShift);
             db.commit();
-            Response r =  Response.ok(result).build();
+            final Response r =  Response.ok(result).build();
             audit.info(securityContext.getUserPrincipal().getName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()
                     + "|data=" + Shift.toLogger(newShift));
             return r;
@@ -150,7 +151,7 @@ public class ShiftResource {
     @PUT
     @Path("end")
     @Consumes({"application/xml", "application/json"})
-    public Response endShift(Shift shift) {
+    public Response endShift(final Shift shift) {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
@@ -159,7 +160,7 @@ public class ShiftResource {
             db.beginTransaction();
             final Shift result = shiftManager.endShift(shift);
             db.commit();
-            Response r =  Response.ok(result).build();
+            final Response r =  Response.ok(result).build();
             audit.info(securityContext.getUserPrincipal().getName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()
                     + "|data=" + Shift.toLogger(shift));
             return r;
