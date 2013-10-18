@@ -117,14 +117,16 @@ public class ShiftManager {
                 shift_owners.addAll(match.getValue());
             }
         }
-        Predicate shiftPredicate = cb.disjunction();
+        Predicate idPredicate = cb.disjunction();
         if (!shift_ids.isEmpty()) {
-        shiftPredicate = cb.or(from.get(Shift_.id).in(shift_ids), shiftPredicate);
+        idPredicate = cb.or(from.get(Shift_.id).in(shift_ids), idPredicate);
         }
+        Predicate ownerPredicate = cb.disjunction();
         if(!shift_owners.isEmpty()) {
-            shiftPredicate = cb.or(from.get(Shift_.owner).in(shift_owners), shiftPredicate);
+            ownerPredicate = cb.or(from.get(Shift_.owner).in(shift_owners), ownerPredicate);
         }
-        cq.where(shiftPredicate);
+        Predicate finalPredicate = cb.and(idPredicate, ownerPredicate);
+        cq.where(finalPredicate);
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         TypedQuery<Shift> typedQuery = em.createQuery(cq);
         JPAUtil.startTransaction(em);

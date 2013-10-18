@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.*;
 
 @Entity
 @Table(name = "shift")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @XmlType(propOrder = {"id", "type", "owner", "startDate", "endDate", "description", "leadOperator", "onShiftPersonal", "report"})
 @XmlRootElement(name = "shift")
 public class Shift implements Serializable {
@@ -19,7 +18,7 @@ public class Shift implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id = null;
+    private Integer id = null;
 
     @Column(name = "type", nullable = false, length = 250, insertable = true)
     private String type = null;
@@ -50,7 +49,7 @@ public class Shift implements Serializable {
     public Shift() {
     }
 
-    public Shift(Long id) {
+    public Shift(Integer id) {
         this.id = id;
     }
 
@@ -60,7 +59,7 @@ public class Shift implements Serializable {
      * @return id shift id
      */
     @XmlElement
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -69,7 +68,7 @@ public class Shift implements Serializable {
      *
      * @param id shift id
      */
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -167,6 +166,24 @@ public class Shift implements Serializable {
         this.report = report;
     }
 
+    /**
+     * Getter for shift type.
+     *
+     * @return type shift type
+     */
+    @XmlAttribute
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Setter for shift tyoe.
+     *
+     * @param type shift type
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
     /**
      * Getter for shift startDate.
      *

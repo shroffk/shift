@@ -9,7 +9,7 @@ import java.util.List;
 /**
 *@author :eschuhmacher
  */
-@XmlRootElement(name = "logs")
+@XmlRootElement(name = "shifts")
 public class Shifts extends LinkedList<Shift> {
 
     public Shifts() {
