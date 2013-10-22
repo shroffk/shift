@@ -50,6 +50,11 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Maven Repository Group</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -97,11 +102,6 @@
             <version>1.7.5</version>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-jdk-http</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.sun.jersey.jersey-test-framework</groupId>
             <artifactId>jersey-test-framework-grizzly2</artifactId>
             <version>1.17</version>
@@ -113,16 +113,14 @@
             <version>1.2</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jndi</groupId>
-            <artifactId>fscontext</artifactId>
-            <version>1.2-beta-3</version>
-            <scope>test</scope>
+            <groupId>org.glassfish.embedded</groupId>
+            <artifactId>maven-embedded-glassfish-plugin</artifactId>
+            <version>3.1.2</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jndi</groupId>
-            <artifactId>providerutil</artifactId>
-            <version>1.2</version>
-            <scope>test</scope>
+            <groupId>org.glassfish.embedded</groupId>
+            <artifactId>gf-embedded-api</artifactId>
+            <version>1.0-alpha-4</version>
         </dependency>
     </dependencies>
 

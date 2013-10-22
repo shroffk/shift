@@ -152,13 +152,50 @@ public class ShiftResource {
     @Path("end")
     @Consumes({"application/xml", "application/json"})
     public Response endShift(final Shift shift) {
+        final UserManager um = UserManager.getInstance();
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
         try {
             db.getConnection();
             db.beginTransaction();
+            if (!um.userHasAdminRole()) {
+                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
+            }
             final Shift result = shiftManager.endShift(shift);
+            db.commit();
+            final Response r =  Response.ok(result).build();
+            audit.info(securityContext.getUserPrincipal().getName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()
+                    + "|data=" + Shift.toLogger(shift));
+            return r;
+        } catch (ShiftFinderException e) {
+            return e.toResponse();
+        } finally {
+            db.releaseConnection();
+        }
+    }
+
+    /**
+     * PUT method for close a shift instance.
+     *
+     * @param shift
+     * @return HTTP response
+     */
+    @PUT
+    @Path("close")
+    @Consumes({"application/xml", "application/json"})
+    public Response closeShift(final Shift shift) {
+        final UserManager um = UserManager.getInstance();
+        final DbConnection db = DbConnection.getInstance();
+        final ShiftManager shiftManager = ShiftManager.getInstance();
+        System.out.println(securityContext.getUserPrincipal());
+        try {
+            db.getConnection();
+            db.beginTransaction();
+            if (!um.userHasAdminRole()) {
+                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
+            }
+            final Shift result = shiftManager.closeShift(shift, um.getUserName());
             db.commit();
             final Response r =  Response.ok(result).build();
             audit.info(securityContext.getUserPrincipal().getName() + "|" + uriInfo.getPath() + "|PUT|OK|" + r.getStatus()

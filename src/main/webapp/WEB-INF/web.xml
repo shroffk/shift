@@ -37,6 +37,23 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
+    <security-constraint>
+        <display-name>Add or Update Shifts</display-name>
+        <web-resource-collection>
+            <web-resource-name>create / update shift(s)</web-resource-name>
+            <description/>
+            <url-pattern>/resources/shift/close</url-pattern>
+            <http-method>PUT</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>Administrator</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <description/>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
     <login-config>
         <auth-method>BASIC</auth-method>
         <realm-name>shift</realm-name>

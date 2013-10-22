@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.*;
 
 @Entity
 @Table(name = "shift")
-@XmlType(propOrder = {"id", "type", "owner", "startDate", "endDate", "description", "leadOperator", "onShiftPersonal", "report"})
+@XmlType(propOrder = {"id", "type", "owner", "startDate", "endDate", "description", "leadOperator", "onShiftPersonal", "report", "closeShiftUser"})
 @XmlRootElement(name = "shift")
 public class Shift implements Serializable {
 
@@ -45,6 +45,9 @@ public class Shift implements Serializable {
 
     @Column(name = "report", nullable = true, length = 250, insertable = true)
     private String report = null;
+    //TODO: check if electronic signature is better for this
+    @Column(name = "close_shift_user", nullable = true, length = 250, insertable = true)
+    private String closeShiftUser = null;
 
     public Shift() {
     }
@@ -220,6 +223,26 @@ public class Shift implements Serializable {
      */
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+
+    /**
+     * Getter for shift end shift user.
+     *
+     * @return closeShiftUser shift closeShiftUser
+     */
+    @XmlAttribute
+    public String getCloseShiftUser() {
+        return closeShiftUser;
+    }
+
+    /**
+     * Setter for shift closeShiftUser.
+     *
+     * @param closeShiftUser shift type
+     */
+    public void setCloseShiftUser(String closeShiftUser) {
+        this.closeShiftUser = closeShiftUser;
     }
 
 

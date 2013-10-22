@@ -57,7 +57,7 @@ public class ShiftManager {
         final Predicate idPredicate = cb.equal(from.get("id"), shiftId);
         final Predicate typePredicate = cb.equal(from.get("type"), type);
         select.where(cb.and(idPredicate, typePredicate));
-        select.orderBy(cb.asc(from.get("startDate")));
+        cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(select);
         JPAUtil.startTransaction(em);
         try {
@@ -239,6 +239,27 @@ public class ShiftManager {
         }
     }
 
+
+    /**
+     * Add the user that close the shift
+     * specified in the Shift <tt>shift</tt>.
+     *
+     *
+     * @param shift Shift shift
+     * @throws ShiftFinderException on ownership mismatch, or wrapping an SQLException
+     */
+    public Shift closeShift(final Shift shift, final String user) throws ShiftFinderException {
+        try {
+            final Shift existingShift = findShiftById(shift.getId(), shift.getType());
+            existingShift.setCloseShiftUser(user);
+            JPAUtil.update(existingShift);
+            return existingShift;
+        } catch (Exception e) {
+            throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
+                    "JPA exception: " + e);
+        }
+    }
+
     /**
      * Find the last open shift
      * @throws ShiftFinderException
@@ -249,11 +270,11 @@ public class ShiftManager {
         final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
         final Root<Shift> from = cq.from(Shift.class);
         final CriteriaQuery<Shift> select = cq.select(from);
-        final Predicate datePredicate = cb.equal(from.get("end_date"), null);
         final Predicate typePredicate = cb.equal(from.get("type"), shiftType);
-        final Predicate finalPredicate = cb.and(datePredicate, typePredicate);
+        final Predicate endDatePredicate = cb.isNull(from.get("endDate"));
+        final Predicate finalPredicate = cb.and(typePredicate, endDatePredicate);
         select.where(finalPredicate);
-        select.orderBy(cb.asc(from.get("startDate")));
+        cq.orderBy(cb.asc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(select);
         JPAUtil.startTransaction(em);
         try {
