@@ -10,5 +10,6 @@ public class Shift_ {
     public static volatile SingularAttribute<Shift, String> type;
     public static volatile SingularAttribute<Shift, String> leadOperator;
     public static volatile SingularAttribute<Shift, String> onShiftPersonal;
+    public static volatile SingularAttribute<Shift, String> closeShiftUser;
     public static volatile SingularAttribute<Shift, Date> startDate;
 }

@@ -95,6 +95,7 @@ public class ShiftManager {
         final List<String> leadOperators = new LinkedList<String>();
         final List<String> onShiftOperators = new LinkedList<String>();
         final List<String> types = new LinkedList<String>();
+        final List<String> closeUsers = new LinkedList<String>();
         String shift_start_date = null;
         String shift_end_date = null;
         types.add(type);
@@ -122,8 +123,9 @@ public class ShiftManager {
                 leadOperators.addAll(match.getValue());
             } else if (key.equals("onShiftPersonal")) {
                 onShiftOperators.addAll(match.getValue());
+            } else if (key.equals("closeUser")) {
+                onShiftOperators.addAll(match.getValue());
             }
-
         }
         Predicate idPredicate = cb.disjunction();
         if (!shift_ids.isEmpty()) {
@@ -149,6 +151,10 @@ public class ShiftManager {
         if(!onShiftOperators.isEmpty()) {
             onShiftPersonalPredicate = cb.or(from.get(Shift_.onShiftPersonal).in(onShiftOperators), onShiftPersonalPredicate);
         }
+        Predicate closeUserPredicate = cb.disjunction();
+        if(!closeUsers.isEmpty()) {
+            closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).in(closeUserPredicate), closeUserPredicate);
+        }
         Predicate datePredicate = cb.disjunction();
         if(shift_end_date != null || shift_start_date != null) {
         if (shift_start_date != null && shift_end_date == null) {
@@ -171,7 +177,8 @@ public class ShiftManager {
                     jEnd);
         }
         }
-        final Predicate finalPredicate = cb.and(idPredicate, ownerPredicate, descriptionPredicate, typenPredicate, datePredicate);
+        final Predicate finalPredicate = cb.and(idPredicate, ownerPredicate, descriptionPredicate, typenPredicate,
+                datePredicate, leadPredicate, onShiftPersonalPredicate, closeUserPredicate);
         cq.where(finalPredicate);
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(cq);

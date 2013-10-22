@@ -156,6 +156,7 @@ public class ShiftResource {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
+        um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
             db.getConnection();
             db.beginTransaction();
@@ -189,6 +190,7 @@ public class ShiftResource {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         System.out.println(securityContext.getUserPrincipal());
+        um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
             db.getConnection();
             db.beginTransaction();

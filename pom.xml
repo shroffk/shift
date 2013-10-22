@@ -149,7 +149,7 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
-                            <Build-Number>${env.BUILD_NUMBER}</Build-Number>
+                            <Build-Number>${cR}</Build-Number>
                             <Build-Id>${env.BUILD_ID}</Build-Id>
                             <Build-Tag>${env.BUILD_TAG}</Build-Tag>
                         </manifestEntries>

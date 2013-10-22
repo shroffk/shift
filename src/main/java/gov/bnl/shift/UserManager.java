@@ -107,4 +107,3 @@ public abstract class UserManager {
         return user.get().getName();
     }
 }
-
