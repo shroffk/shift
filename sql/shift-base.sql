@@ -7,6 +7,7 @@ CREATE TABLE `shift` (
    `lead_operator` text,
    `on_shift_personal` text,
    `report` text,
+   `type` text,
    `close_shift_user` text,
    `start_date` datetime NOT NULL,
    `end_date` datetime,
