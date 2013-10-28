@@ -2,11 +2,14 @@ package gov.bnl.shiftClient;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
 /**
 *@author: eschuhmacher
  */
+
+@XmlRootElement(name = "shift")
 public class XmlShift {
 
     private Integer id;

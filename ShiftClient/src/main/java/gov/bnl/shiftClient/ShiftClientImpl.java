@@ -62,7 +62,7 @@ public class ShiftClientImpl implements ShiftClient {
 
         private ShiftProperties properties = new ShiftProperties();
 
-        private static final String DEFAULT_OLOG_URL = "http://localhost:8080/Shift/resources"; //$NON-NLS-1$
+        private static final String DEFAULT_OLOG_URL = "http://localhost:8080/Shift/resources"; //$NON-NLS-1$8
 
         private ShiftClientBuilder() {
             this.shiftURI = URI.create(this.properties.getPreferenceValue(
@@ -381,21 +381,6 @@ public class ShiftClientImpl implements ShiftClient {
                 throw new ShiftFinderException(
                         (UniformInterfaceException) e.getCause());
             }
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void wrappedSubmit(Runnable runnable) {
-        try {
-            this.executor.submit(runnable).get(60, TimeUnit.SECONDS);
-        } catch (ExecutionException e) {
-            if (e.getCause() != null
-                    && e.getCause() instanceof UniformInterfaceException) {
-                throw new ShiftFinderException(
-                        (UniformInterfaceException) e.getCause());
-            }
-            throw new RuntimeException(e);
-        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
