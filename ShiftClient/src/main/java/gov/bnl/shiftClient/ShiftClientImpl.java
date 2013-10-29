@@ -92,7 +92,7 @@ public class ShiftClientImpl implements ShiftClient {
          * @param uri
          * @return {@link ShiftClientBuilder}
          */
-        public static ShiftClientBuilder serviceURL(String uri) {
+        public static ShiftClientBuilder serviceURL(final String uri) {
             return new ShiftClientBuilder(URI.create(uri));
         }
 
@@ -103,7 +103,7 @@ public class ShiftClientImpl implements ShiftClient {
          * @param uri
          * @return {@link ShiftClientBuilder}
          */
-        public static ShiftClientBuilder serviceURL(URI uri) {
+        public static ShiftClientBuilder serviceURL(final URI uri) {
             return new ShiftClientBuilder(uri);
         }
 
@@ -113,8 +113,7 @@ public class ShiftClientImpl implements ShiftClient {
          * @param withHTTPAuthentication
          * @return {@link ShiftClientBuilder}
          */
-        public ShiftClientBuilder withHTTPAuthentication(
-                boolean withHTTPAuthentication) {
+        public ShiftClientBuilder withHTTPAuthentication(final boolean withHTTPAuthentication) {
             this.withHTTPAuthentication = withHTTPAuthentication;
             return this;
         }
@@ -125,7 +124,7 @@ public class ShiftClientImpl implements ShiftClient {
          * @param username
          * @return {@link ShiftClientBuilder}
          */
-        public ShiftClientBuilder username(String username) {
+        public ShiftClientBuilder username(final String username) {
             this.username = username;
             return this;
         }
@@ -136,7 +135,7 @@ public class ShiftClientImpl implements ShiftClient {
          * @param password
          * @return {@link ShiftClientBuilder}
          */
-        public ShiftClientBuilder password(String password) {
+        public ShiftClientBuilder password(final String password) {
             this.password = password;
             return this;
         }
@@ -148,13 +147,13 @@ public class ShiftClientImpl implements ShiftClient {
          * @param clientConfig
          * @return {@link ShiftClientBuilder}
          */
-        public ShiftClientBuilder withClientConfig(ClientConfig clientConfig) {
+        public ShiftClientBuilder withClientConfig(final ClientConfig clientConfig) {
             this.clientConfig = clientConfig;
             return this;
         }
 
         @SuppressWarnings("unused")
-        private ShiftClientBuilder withSSLContext(SSLContext sslContext) {
+        private ShiftClientBuilder withSSLContext(final SSLContext sslContext) {
             this.sslContext = sslContext;
             return this;
         }
@@ -165,7 +164,7 @@ public class ShiftClientImpl implements ShiftClient {
          * @param trustManager
          * @return {@link ShiftClientBuilder}
          */
-        public ShiftClientBuilder withTrustManager(TrustManager[] trustManager) {
+        public ShiftClientBuilder withTrustManager(final TrustManager[] trustManager) {
             this.trustManager = trustManager;
             return this;
         }
@@ -177,7 +176,7 @@ public class ShiftClientImpl implements ShiftClient {
          * @param executor
          * @return {@link ShiftClientBuilder}
          */
-        public ShiftClientBuilder withExecutor(ExecutorService executor) {
+        public ShiftClientBuilder withExecutor(final ExecutorService executor) {
             this.executor = executor;
             return this;
         }
@@ -217,8 +216,7 @@ public class ShiftClientImpl implements ShiftClient {
                     this.executor);
         }
 
-        private String ifNullReturnPreferenceValue(String value, String key,
-                                                   String Default) {
+        private String ifNullReturnPreferenceValue(final String value,final String key, final String Default) {
             if (value == null) {
                 return this.properties.getPreferenceValue(key, Default);
             } else {
@@ -227,12 +225,11 @@ public class ShiftClientImpl implements ShiftClient {
         }
 
     }
-    private ShiftClientImpl(URI shiftURI, ClientConfig config,
-                           boolean withHTTPBasicAuthFilter, String username, String password,
-                           ExecutorService executor) {
+    private ShiftClientImpl(final URI shiftURI, ClientConfig config, final boolean withHTTPBasicAuthFilter,
+                            final String username, final String password, final ExecutorService executor) {
         this.executor = executor;
         config.getClasses().add(MultiPartWriter.class);
-        Client client = Client.create(config);
+        final Client client = Client.create(config);
         if (withHTTPBasicAuthFilter) {
             client.addFilter(new HTTPBasicAuthFilter(username, password));
         }
@@ -246,8 +243,8 @@ public class ShiftClientImpl implements ShiftClient {
 
             @Override
             public Collection<Shift> call() throws Exception {
-                Collection<Shift> shifts = new HashSet<Shift>();
-                XmlShifts xmlShifts = service.path("shift").path(type)
+                final Collection<Shift> shifts = new HashSet<Shift>();
+                final XmlShifts xmlShifts = service.path("shift").path(type)
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON).get(XmlShifts.class);
                 for (XmlShift xmlShift : xmlShifts.getShifts()) {
@@ -264,7 +261,7 @@ public class ShiftClientImpl implements ShiftClient {
 
             @Override
             public Shift call() throws Exception {
-                XmlShift xmlShift = service.path("shift").path(type).path(shiftId.toString())
+                final XmlShift xmlShift = service.path("shift").path(type).path(shiftId.toString())
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON).get(XmlShift.class);
                 return new Shift(xmlShift);
@@ -277,8 +274,8 @@ public class ShiftClientImpl implements ShiftClient {
         return wrappedSubmit(new Callable<Shift>() {
             @Override
             public Shift call() throws Exception {
-                XmlShift xmlShift = shift.toXml();
-                ClientResponse clientResponse = service.path("shift").path("start")
+                final XmlShift xmlShift = shift.toXml();
+                final ClientResponse clientResponse = service.path("shift").path("start")
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON)
                         .put(ClientResponse.class, xmlShift);
@@ -295,8 +292,8 @@ public class ShiftClientImpl implements ShiftClient {
         return wrappedSubmit(new Callable<Shift>() {
             @Override
             public Shift call() throws Exception {
-                XmlShift xmlShift = shift.toXml();
-                ClientResponse clientResponse = service.path("shift").path("end")
+                final XmlShift xmlShift = shift.toXml();
+                final ClientResponse clientResponse = service.path("shift").path("end")
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON)
                         .put(ClientResponse.class, xmlShift);
@@ -312,8 +309,8 @@ public class ShiftClientImpl implements ShiftClient {
         return wrappedSubmit(new Callable<Shift>() {
             @Override
             public Shift call() throws Exception {
-                XmlShift xmlShift = shift.toXml();
-                ClientResponse clientResponse = service.path("shift").path("close")
+                final XmlShift xmlShift = shift.toXml();
+                final ClientResponse clientResponse = service.path("shift").path("close")
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON)
                         .put(ClientResponse.class, xmlShift);
@@ -333,7 +330,7 @@ public class ShiftClientImpl implements ShiftClient {
     @Override
     public Collection<Shift> findShifts(final String type, final Map<String, String> map) throws ShiftFinderException {
         final MultivaluedMap<String, String> mMap = new MultivaluedMapImpl();
-        Iterator<Map.Entry<String, String>> itr = map.entrySet().iterator();
+        final Iterator<Map.Entry<String, String>> itr = map.entrySet().iterator();
         while (itr.hasNext()) {
             Map.Entry<String, String> entry = itr.next();
             mMap.put(entry.getKey(),
@@ -342,8 +339,8 @@ public class ShiftClientImpl implements ShiftClient {
         return wrappedSubmit(new Callable<Collection<Shift>>() {
         @Override
         public Collection<Shift> call() throws Exception {
-        Collection<Shift> shifts = new HashSet<Shift>();
-        XmlShifts xmlShifts = service.path("shift").path(type).queryParams(mMap)
+            final Collection<Shift> shifts = new HashSet<Shift>();
+            final XmlShifts xmlShifts = service.path("shift").path(type).queryParams(mMap)
                 .accept(MediaType.APPLICATION_XML)
                 .accept(MediaType.APPLICATION_JSON).get(XmlShifts.class);
         for (XmlShift xmlShift : xmlShifts.getShifts()) {
@@ -359,8 +356,8 @@ public class ShiftClientImpl implements ShiftClient {
         return wrappedSubmit(new Callable<Collection<Shift>>() {
             @Override
             public Collection<Shift> call() throws Exception {
-                Collection<Shift> shifts = new HashSet<Shift>();
-                XmlShifts xmlShifts = service.path("shift").path(type).queryParams(map)
+                final Collection<Shift> shifts = new HashSet<Shift>();
+                final XmlShifts xmlShifts = service.path("shift").path(type).queryParams(map)
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON).get(XmlShifts.class);
                 for (XmlShift xmlShift : xmlShifts.getShifts()) {
@@ -370,7 +367,7 @@ public class ShiftClientImpl implements ShiftClient {
             }
         });    }
 
-    private <T> T wrappedSubmit(Callable<T> callable) {
+    private <T> T wrappedSubmit(final Callable<T> callable) {
         try {
             return this.executor.submit(callable).get();
         } catch (InterruptedException e) {

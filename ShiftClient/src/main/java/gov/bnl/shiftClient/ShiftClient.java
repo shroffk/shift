@@ -17,7 +17,7 @@ public interface ShiftClient {
      * @return string collection of shifts
      * @throws ShiftFinderException
      */
-    public Collection<Shift> listShifts(final String type) throws ShiftFinderException;
+    Collection<Shift> listShifts(final String type) throws ShiftFinderException;
 
 
     /**
@@ -27,7 +27,7 @@ public interface ShiftClient {
      * @return Shift object
      * @throws ShiftFinderException
      */
-    public Shift getShift(final Integer shiftId, final String type) throws ShiftFinderException;
+    Shift getShift(final Integer shiftId, final String type) throws ShiftFinderException;
 
 
     /**
@@ -37,7 +37,7 @@ public interface ShiftClient {
      * @param shift the shift to be started
      * @throws ShiftFinderException
      */
-    public Shift start(Shift shift) throws ShiftFinderException;
+    Shift start(final Shift shift) throws ShiftFinderException;
 
     /**
      * end a shift
@@ -46,7 +46,7 @@ public interface ShiftClient {
      * @param shift to be close
      * @throws ShiftFinderException
      */
-    public Shift end(Shift shift) throws ShiftFinderException;
+    Shift end(final Shift shift) throws ShiftFinderException;
 
     /**
      * close a shift
@@ -55,7 +55,7 @@ public interface ShiftClient {
      * @param shift  shift to be ended
      * @throws ShiftFinderException
      */
-    public Shift close(Shift shift) throws ShiftFinderException;
+    Shift close(final Shift shift) throws ShiftFinderException;
 
 
     /**
@@ -64,7 +64,7 @@ public interface ShiftClient {
      * @return collection of Shift objects
      * @throws ShiftFinderException
      */
-    public Collection<Shift> findShiftsBySearch(String pattern) throws ShiftFinderException;
+    Collection<Shift> findShiftsBySearch(final String pattern) throws ShiftFinderException;
 
     /**
      * Query for shifts based on the criteria specified in the map
@@ -73,7 +73,7 @@ public interface ShiftClient {
      * @return collection of Shift objects
      * @throws ShiftFinderException
      */
-    public Collection<Shift> findShifts(final String type, final Map<String, String> map)  throws ShiftFinderException;
+    Collection<Shift> findShifts(final String type, final Map<String, String> map)  throws ShiftFinderException;
 
     /**
      * Multivalued map used to search for a key with multiple values. e.g.
@@ -85,5 +85,5 @@ public interface ShiftClient {
      * @return collection of shift objects
      * @throws ShiftFinderException
      */
-    public Collection<Shift> findShifts(MultivaluedMap<String, String> map, String type) throws ShiftFinderException;
+    Collection<Shift> findShifts(final MultivaluedMap<String, String> map, String type) throws ShiftFinderException;
 }

@@ -26,11 +26,11 @@ public class Shift implements Serializable {
     public Shift() {
     }
 
-    public Shift(Integer id) {
+    public Shift(final Integer id) {
         this.id = id;
     }
 
-    Shift(XmlShift shift) {
+    Shift(final XmlShift shift) {
         this.id = shift.getId();
         this.owner = shift.getOwner();
         this.description = shift.getDescription();

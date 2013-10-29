@@ -26,21 +26,21 @@ class DummyX509TrustManager implements X509TrustManager {
 
     }
 
-    DummyX509TrustManager(String trustStore, char[] password) throws Exception {
+    DummyX509TrustManager(final String trustStore, final char[] password) throws Exception {
         this(new File(trustStore), password);
     }
 
-    DummyX509TrustManager(File trustStore, char[] password) throws Exception {
+    DummyX509TrustManager(final File trustStore, final char[] password) throws Exception {
         // create a "default" JSSE X509TrustManager.
-        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+        final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 
         ks.load(new FileInputStream(trustStore), password);
 
-        TrustManagerFactory tmf = TrustManagerFactory
+        final TrustManagerFactory tmf = TrustManagerFactory
                 .getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(ks);
 
-        TrustManager tms[] = tmf.getTrustManagers();
+        final TrustManager tms[] = tmf.getTrustManagers();
 
 		/*
 		 * Iterate over the returned trustmanagers, look for an instance of
@@ -63,7 +63,7 @@ class DummyX509TrustManager implements X509TrustManager {
     /*
      * Delegate to the default trust manager.
      */
-    public void checkClientTrusted(X509Certificate[] chain, String authType)
+    public void checkClientTrusted(final X509Certificate[] chain, final String authType)
             throws CertificateException {
         // TODO implement checks for certificate and provide options to
         // automatically acccept all, reject all or promt user
@@ -73,7 +73,7 @@ class DummyX509TrustManager implements X509TrustManager {
     /*
      * Delegate to the default trust manager.
      */
-    public void checkServerTrusted(X509Certificate[] chain, String authType)
+    public void checkServerTrusted(final X509Certificate[] chain, final String authType)
             throws CertificateException {
         // TODO implement checks for certificate and provide options to
         // automatically acccept all, reject all or promt user

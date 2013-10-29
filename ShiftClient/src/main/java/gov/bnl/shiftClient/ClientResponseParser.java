@@ -14,7 +14,7 @@ class ClientResponseParser extends HTMLEditorKit.ParserCallback {
         super();
     }
 
-    public void handleText(char[] data, int pos) {
+    public void handleText(final char[] data, final int pos) {
         String strData = new String(data);
         if(messageFlag){
             message += strData;
@@ -30,7 +30,7 @@ class ClientResponseParser extends HTMLEditorKit.ParserCallback {
         }
     }
 
-    public void handleStartTag(HTML.Tag t, MutableAttributeSet a, int p) {
+    public void handleStartTag(final HTML.Tag t, MutableAttributeSet a, final int p) {
     }
 
     public String getMessage() {
