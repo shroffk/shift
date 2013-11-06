@@ -344,6 +344,27 @@ public class ShiftManager {
                     "JPA exception: " + e);
         } finally {
             JPAUtil.finishTransacton(em);
-        }        }
+        }
+    }
 
+    public String listTypes() {
+        em = JPAUtil.getEntityManagerFactory().createEntityManager();
+        JPAUtil.startTransaction(em);
+        try {
+            StringBuilder result = new StringBuilder();
+            final List<String> rs = em.createNamedQuery("Select distinct(type) from shift").getResultList();
+            if (rs != null) {
+                Iterator<String> iterator = rs.iterator();
+                while (iterator.hasNext()) {
+                    result.append(iterator.next()).append(",");
+                }
+            }
+
+            return result.substring(0, result.length() - 1);
+        } catch (Exception e) {
+            throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
+                    "JPA exception: " + e);
+        } finally {
+            JPAUtil.finishTransacton(em);
+        }        }
 }

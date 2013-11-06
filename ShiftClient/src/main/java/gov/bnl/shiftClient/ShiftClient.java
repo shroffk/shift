@@ -19,6 +19,13 @@ public interface ShiftClient {
      */
     Collection<Shift> listShifts(final String type) throws ShiftFinderException;
 
+    /**
+     * Get a list of all the types currently existings
+     *
+     * @return string collection of types
+     * @throws ShiftFinderException
+     */
+    Collection<String> listTypes() throws ShiftFinderException;
 
     /**
      * Returns a shift that exactly matches the shiftId <tt>shiftId</tt>

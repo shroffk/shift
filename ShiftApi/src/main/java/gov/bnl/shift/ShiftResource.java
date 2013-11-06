@@ -60,6 +60,37 @@ public class ShiftResource {
             db.releaseConnection();
         }
     }
+
+    /**
+     * GET method for retrieving a collection of types instances,
+     *
+     * @return HTTP Response
+     */
+    @GET
+    @Path("type")
+    @Produces({"application/xml", "application/json"})
+    public Response listTypes() {
+        final DbConnection db = DbConnection.getInstance();
+        final ShiftManager shiftManager = ShiftManager.getInstance();
+        final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
+        try {
+            db.getConnection();
+            db.beginTransaction();
+            final String result = shiftManager.listTypes();
+            db.commit();
+            final Response r = Response.ok(result).build();
+            log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
+                    + "|returns ");
+            return r;
+        } catch (ShiftFinderException e) {
+            log.warning(user + "|" + uriInfo.getPath() + "|GET|ERROR|"
+                    + e.getResponseStatusCode() +  "|cause=" + e);
+            return e.toResponse();
+        } finally {
+            db.releaseConnection();
+        }
+    }
+
     /**
      * GET method for retrieving a collection of shift instances,
      * based on a multi-parameter query specifiying patterns, id, from-to startDate or owner name

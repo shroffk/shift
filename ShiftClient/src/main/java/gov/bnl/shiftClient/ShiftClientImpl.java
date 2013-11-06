@@ -255,6 +255,21 @@ public class ShiftClientImpl implements ShiftClient {
         });
     }
 
+
+    @Override
+    public Collection<String> listTypes() throws ShiftFinderException {
+        return wrappedSubmit(new Callable<Collection<String>>() {
+
+            @Override
+            public Collection<String> call() throws Exception {
+                final String types = service.path("shift").path("type")
+                        .accept(MediaType.APPLICATION_XML)
+                        .accept(MediaType.APPLICATION_JSON).get(String.class);
+                return  Collections.unmodifiableCollection(Arrays.asList(types.split(",")));
+            }
+        });
+    }
+
     @Override
     public Shift getShift(final Integer shiftId, final String type) throws ShiftFinderException {
         return wrappedSubmit(new Callable<Shift>() {
