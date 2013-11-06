@@ -1,5 +1,5 @@
-import bnl.gov.shift.Shift;
-import bnl.gov.shift.Shifts;
+import gov.bnl.shift.Shift;
+import gov.bnl.shift.Shifts;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
@@ -69,7 +69,7 @@ public class ShiftResourceTest {
     public void setUp() throws Exception {
         Client c = Client.create();
         httpResource = c.resource(BASE_URI);
-        c.addFilter(new HTTPBasicAuthFilter("bnl/gov/shift", "bnl/gov/shift"));
+        c.addFilter(new HTTPBasicAuthFilter("shift", "shift"));
         SSLContext ssl = SSLContext.getInstance("SSL");
         ssl.init(new KeyManager[0], new TrustManager[] {new DummyX509TrustManager()}, new SecureRandom());
         SSLContext.setDefault(ssl);
@@ -77,7 +77,7 @@ public class ShiftResourceTest {
         DefaultClientConfig dcc = new DefaultClientConfig();
         dcc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, prop);
         Client c2 = Client.create(dcc);
-        c2.addFilter(new HTTPBasicAuthFilter("bnl/gov/shift", "bnl/gov/shift"));
+        c2.addFilter(new HTTPBasicAuthFilter("shift", "shift"));
         httpsResource = c2.resource(getBaseHttpsURI());
 
     }
@@ -85,7 +85,7 @@ public class ShiftResourceTest {
     @Test
     public void testAddShift() throws IOException {
         Shift shift = new Shift();
-        shift.setOwner("bnl/gov/shift");
+        shift.setOwner("shift");
         shift.setType("testType");
         shift.setDescription("test case shift");
         Date startDate = new Date();
@@ -109,12 +109,12 @@ public class ShiftResourceTest {
     @Test
     public void testAddMultipleShifts() {
         Shift shift = new Shift();
-        shift.setOwner("bnl/gov/shift");
+        shift.setOwner("shift");
         shift.setType("testType");
         shift.setDescription("test case shift");
         Date startDate = new Date();
         Shift shift2 = new Shift();
-        shift2.setOwner("bnl/gov/shift");
+        shift2.setOwner("shift");
         shift2.setType("testType2");
         shift2.setDescription("test case shift2");
         Shift addedShift = httpsResource.path("/resources/shift/start").accept(MediaType.APPLICATION_XML).type("application/xml").put(Shift.class, shift);
@@ -134,12 +134,12 @@ public class ShiftResourceTest {
         Shift addedShift = null;
         try {
             Shift shift = new Shift();
-            shift.setOwner("bnl/gov/shift");
+            shift.setOwner("shift");
             shift.setType("testType");
             shift.setDescription("test case shift");
             Date startDate = new Date();
             Shift shift2 = new Shift();
-            shift2.setOwner("bnl/gov/shift");
+            shift2.setOwner("shift");
             shift2.setType("testType");
             shift2.setDescription("test case shift2");
             addedShift = httpsResource.path("/resources/shift/start").accept(MediaType.APPLICATION_XML).type("application/xml").put(Shift.class, shift);
@@ -152,7 +152,7 @@ public class ShiftResourceTest {
     @Test
     public void testSearch() {
         Shifts shift = httpResource.path("/resources/shift/testtype").accept(MediaType.APPLICATION_XML).get(Shifts.class);
-        assertEquals(shift.getFirst().getOwner(), "bnl/gov/shift");
+        assertEquals(shift.getFirst().getOwner(), "shift");
         assertEquals(1, shift.size());
         Shift sameShift = httpResource.path(("/resources/shift/testtype/" + shift.getFirst().getId()) ).accept(MediaType.APPLICATION_XML).get(Shift.class);
         assertEquals(sameShift, shift.getFirst());
@@ -162,7 +162,8 @@ public class ShiftResourceTest {
     public void findShiftByMultipleParamethers() {
         FormDataMultiPart form = new FormDataMultiPart();
         MultivaluedMap<String, String> map = new MultivaluedMapImpl();
-        map.add("owner", "bnl/gov/shift");
+        map.add("owner", "shift");
+        Shifts shifts23 = httpResource.path("/resources/shift").accept(MediaType.APPLICATION_XML).get(Shifts.class);
         Shifts shifts = httpResource.path("/resources/shift/testtype").queryParams(map).accept(MediaType.APPLICATION_XML).get(Shifts.class);
         assertTrue(shifts.size() >= 4);
         map.clear();
