@@ -88,7 +88,7 @@ public class ShiftManager {
      * @return Shifts container
      * @throws ShiftFinderException wrapping an SQLException
      */
-    public Shifts findShiftsByMultiMatch(final String type, final MultivaluedMap<String, String> matches) throws ShiftFinderException {
+    public Shifts findShiftsByMultiMatch(final MultivaluedMap<String, String> matches) throws ShiftFinderException {
         final List<String> shift_ids = new LinkedList<String>();
         final List<String> shift_owners = new LinkedList<String>();
         final List<String> descriptions = new LinkedList<String>();
@@ -98,7 +98,6 @@ public class ShiftManager {
         final List<String> closeUsers = new LinkedList<String>();
         String shift_start_date = null;
         String shift_end_date = null;
-        types.add(type);
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
@@ -351,15 +350,15 @@ public class ShiftManager {
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
         JPAUtil.startTransaction(em);
         try {
-            StringBuilder result = new StringBuilder();
-            final List<String> rs = em.createNamedQuery("Select distinct(type) from shift").getResultList();
+            final TypedQuery<String> query = em.createQuery("select distinct(s.type) from Shift s", String.class);
+            final StringBuilder result = new StringBuilder();
+            final List<String> rs = query.getResultList();
             if (rs != null) {
                 Iterator<String> iterator = rs.iterator();
                 while (iterator.hasNext()) {
                     result.append(iterator.next()).append(",");
                 }
             }
-
             return result.substring(0, result.length() - 1);
         } catch (Exception e) {
             throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
