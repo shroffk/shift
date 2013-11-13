@@ -163,7 +163,7 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            result = shiftManager.findShiftById(shiftId, typeName);
+            result = shiftManager.findShiftById(shiftId);
             db.commit();
             Response r;
             if (result == null) {

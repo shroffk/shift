@@ -51,18 +51,14 @@ public class ShiftManager {
      * @return Shift with found shift
      * @throws ShiftFinderException on SQLException
      */
-    public Shift findShiftById(final Integer shiftId, final String typeName) throws ShiftFinderException {
-        List<Integer> typeIds = findTypesIdByName(typeName);
+    public Shift findShiftById(final Integer shiftId) throws ShiftFinderException {
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
         final Root<Shift> from = cq.from(Shift.class);
-        Join<Shift, Type> type = from.join(Shift_.type, JoinType.LEFT);
-
         final CriteriaQuery<Shift> select = cq.select(from);
         final Predicate idPredicate = cb.equal(from.get("id"), shiftId);
-        final Predicate typePredicate = cb.equal(type.get(Type_.id).in(typeIds), typeIds);
-        select.where(cb.and(idPredicate, typePredicate));
+        select.where(cb.and(idPredicate));
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(select);
         JPAUtil.startTransaction(em);
@@ -242,7 +238,7 @@ public class ShiftManager {
      */
     public Shift endShift(final Shift shift) throws ShiftFinderException {
         try {
-            final Shift existingShift = findShiftById(shift.getId(), shift.getType().getName());
+            final Shift existingShift = findShiftById(shift.getId());
             existingShift.setEndDate(new Date());
             JPAUtil.update(existingShift);
             return existingShift;
@@ -263,7 +259,7 @@ public class ShiftManager {
      */
     public Shift closeShift(final Shift shift, final String user) throws ShiftFinderException {
         try {
-            final Shift existingShift = findShiftById(shift.getId(), shift.getType().getName());
+            final Shift existingShift = findShiftById(shift.getId());
             existingShift.setCloseShiftUser(user);
             JPAUtil.update(existingShift);
             return existingShift;
@@ -319,6 +315,7 @@ public class ShiftManager {
     public Shift startShift(final Shift shift) throws ShiftFinderException {
         try {
             shift.setStartDate(new Date());
+            shift.setType(findTypeByName(shift.getType().getName()));
             JPAUtil.save(shift);
             return shift;
         } catch (Exception e) {
@@ -404,6 +401,33 @@ public class ShiftManager {
             }
 
             return result;
+        } catch (Exception e) {
+            throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
+                    "JPA exception: " + e);
+        } finally {
+            JPAUtil.finishTransacton(em);
+        }
+    }
+
+    public Type findTypeByName(final String name) {
+        em = JPAUtil.getEntityManagerFactory().createEntityManager();
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<Type> cq = cb.createQuery(Type.class);
+        final Root<Type> from = cq.from(Type.class);
+        final CriteriaQuery<Type> select = cq.select(from);
+        Predicate typePredicate = cb.disjunction();
+        typePredicate = cb.or(from.get(Type_.name).in(name), typePredicate);
+        select.where(typePredicate);
+        final TypedQuery<Type> typedQuery = em.createQuery(select);
+        JPAUtil.startTransaction(em);
+        try {
+            final List<Integer> result = new ArrayList<Integer>();
+            final List<Type> rs = typedQuery.getResultList();
+            if (rs != null) {
+                return rs.iterator().next();
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                     "JPA exception: " + e);
