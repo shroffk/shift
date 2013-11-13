@@ -20,8 +20,9 @@ public class Shift implements Serializable {
     @Column(name = "id")
     private Integer id = null;
 
-    @Column(name = "type", nullable = false, length = 250, insertable = true)
-    private String type = null;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "type_id", unique = true)
+    private Type type = null;
 
     @Column(name = "owner", nullable = false, length = 250, insertable = true)
     private String owner = null;
@@ -174,8 +175,7 @@ public class Shift implements Serializable {
      *
      * @return type shift type
      */
-    @XmlAttribute
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
@@ -184,8 +184,27 @@ public class Shift implements Serializable {
      *
      * @param type shift type
      */
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
+    }
+
+    @XmlAttribute(name = "type")
+    public String getTypeName() {
+        if (type != null) {
+            return type.getName();
+        } else {
+            return null;
+        }
+    }
+
+    public void setTypeId(final Integer id) {
+        if (type != null) {
+            type.setId(id);
+        } else {
+            Type newType = new Type();
+            newType.setId(id);
+            this.type = newType;
+        }
     }
     /**
      * Getter for shift startDate.

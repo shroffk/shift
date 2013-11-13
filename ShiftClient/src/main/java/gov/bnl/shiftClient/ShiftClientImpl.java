@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -243,7 +245,7 @@ public class ShiftClientImpl implements ShiftClient {
 
             @Override
             public Collection<Shift> call() throws Exception {
-                final Collection<Shift> shifts = new HashSet<Shift>();
+                final Collection<Shift> shifts = new LinkedHashSet<Shift>();
                 final XmlShifts xmlShifts = service.path("shift").path(type)
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON).get(XmlShifts.class);
@@ -257,15 +259,19 @@ public class ShiftClientImpl implements ShiftClient {
 
 
     @Override
-    public Collection<String> listTypes() throws ShiftFinderException {
-        return wrappedSubmit(new Callable<Collection<String>>() {
+    public Collection<Type> listTypes() throws ShiftFinderException {
+        return wrappedSubmit(new Callable<Collection<Type>>() {
 
             @Override
-            public Collection<String> call() throws Exception {
-                final String types = service.path("shift").path("type")
+            public Collection<Type> call() throws Exception {
+                final Collection<Type> types = new HashSet<Type>();
+                final XmlTypes xmlTypes = service.path("shift").path("type")
                         .accept(MediaType.APPLICATION_XML)
-                        .accept(MediaType.APPLICATION_JSON).get(String.class);
-                return  Collections.unmodifiableCollection(Arrays.asList(types.split(",")));
+                        .accept(MediaType.APPLICATION_JSON).get(XmlTypes.class);
+                for (XmlType xmlType : xmlTypes.getTypes()) {
+                    types.add(new Type(xmlType));
+                }
+                return types;
             }
         });
     }
@@ -343,7 +349,7 @@ public class ShiftClientImpl implements ShiftClient {
     }
 
     @Override
-    public Collection<Shift> findShifts(final String type, final Map<String, String> map) throws ShiftFinderException {
+    public Collection<Shift> findShifts(final Map<String, String> map) throws ShiftFinderException {
         final MultivaluedMap<String, String> mMap = new MultivaluedMapImpl();
         final Iterator<Map.Entry<String, String>> itr = map.entrySet().iterator();
         while (itr.hasNext()) {
@@ -354,8 +360,8 @@ public class ShiftClientImpl implements ShiftClient {
         return wrappedSubmit(new Callable<Collection<Shift>>() {
         @Override
         public Collection<Shift> call() throws Exception {
-            final Collection<Shift> shifts = new HashSet<Shift>();
-            final XmlShifts xmlShifts = service.path("shift").path(type).queryParams(mMap)
+            final Collection<Shift> shifts = new LinkedHashSet<Shift>();
+            final XmlShifts xmlShifts = service.path("shift").queryParams(mMap)
                 .accept(MediaType.APPLICATION_XML)
                 .accept(MediaType.APPLICATION_JSON).get(XmlShifts.class);
         for (XmlShift xmlShift : xmlShifts.getShifts()) {
@@ -367,12 +373,12 @@ public class ShiftClientImpl implements ShiftClient {
     }
 
     @Override
-    public Collection<Shift> findShifts(final MultivaluedMap<String, String> map, final String type) throws ShiftFinderException {
+    public Collection<Shift> findShifts(final MultivaluedMap<String, String> map) throws ShiftFinderException {
         return wrappedSubmit(new Callable<Collection<Shift>>() {
             @Override
             public Collection<Shift> call() throws Exception {
-                final Collection<Shift> shifts = new HashSet<Shift>();
-                final XmlShifts xmlShifts = service.path("shift").path(type).queryParams(map)
+                final Collection<Shift> shifts = new LinkedHashSet<Shift>();
+                final XmlShifts xmlShifts = service.path("shift").queryParams(map)
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON).get(XmlShifts.class);
                 for (XmlShift xmlShift : xmlShifts.getShifts()) {

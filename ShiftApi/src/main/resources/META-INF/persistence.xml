@@ -4,6 +4,8 @@
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <non-jta-data-source>jdbc/shift</non-jta-data-source>
         <class>gov.bnl.shift.Shift</class>
+        <class>gov.bnl.shift.Type</class>
+
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>

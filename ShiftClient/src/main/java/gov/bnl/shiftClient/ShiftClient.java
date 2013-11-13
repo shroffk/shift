@@ -25,7 +25,7 @@ public interface ShiftClient {
      * @return string collection of types
      * @throws ShiftFinderException
      */
-    Collection<String> listTypes() throws ShiftFinderException;
+    Collection<Type> listTypes() throws ShiftFinderException;
 
     /**
      * Returns a shift that exactly matches the shiftId <tt>shiftId</tt>
@@ -80,7 +80,7 @@ public interface ShiftClient {
      * @return collection of Shift objects
      * @throws ShiftFinderException
      */
-    Collection<Shift> findShifts(final String type, final Map<String, String> map)  throws ShiftFinderException;
+    Collection<Shift> findShifts(final Map<String, String> map)  throws ShiftFinderException;
 
     /**
      * Multivalued map used to search for a key with multiple values. e.g.
@@ -88,9 +88,8 @@ public interface ShiftClient {
      *
      *
      * @param map Multivalue map for searching a key with multiple values
-     * @param type
      * @return collection of shift objects
      * @throws ShiftFinderException
      */
-    Collection<Shift> findShifts(final MultivaluedMap<String, String> map, String type) throws ShiftFinderException;
+    Collection<Shift> findShifts(final MultivaluedMap<String, String> map) throws ShiftFinderException;
 }

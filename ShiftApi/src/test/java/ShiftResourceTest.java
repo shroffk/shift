@@ -8,6 +8,7 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.multipart.FormDataMultiPart;
+import gov.bnl.shift.Type;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -86,7 +87,10 @@ public class ShiftResourceTest {
     public void testAddShift() throws IOException {
         Shift shift = new Shift();
         shift.setOwner("shift");
-        shift.setType("testType");
+        Type type = new Type();
+        type.setId(1);
+        type.setName("test");
+        shift.setType(type);
         shift.setDescription("test case shift");
         Date startDate = new Date();
         Shift addedShift = httpsResource.path("/resources/shift/start").accept(MediaType.APPLICATION_XML).type("application/xml").put(Shift.class, shift);
@@ -110,12 +114,18 @@ public class ShiftResourceTest {
     public void testAddMultipleShifts() {
         Shift shift = new Shift();
         shift.setOwner("shift");
-        shift.setType("testType");
+        Type type = new Type();
+        type.setId(1);
+        type.setName("test");
+        shift.setType(type);
         shift.setDescription("test case shift");
         Date startDate = new Date();
         Shift shift2 = new Shift();
         shift2.setOwner("shift");
-        shift2.setType("testType2");
+        Type type2 = new Type();
+        type2.setId(2);
+        type2.setName("test2");
+        shift2.setType(type2);
         shift2.setDescription("test case shift2");
         Shift addedShift = httpsResource.path("/resources/shift/start").accept(MediaType.APPLICATION_XML).type("application/xml").put(Shift.class, shift);
         Shift addedShift2 = httpsResource.path("/resources/shift/start").accept(MediaType.APPLICATION_XML).type("application/xml").put(Shift.class, shift2);
@@ -135,12 +145,15 @@ public class ShiftResourceTest {
         try {
             Shift shift = new Shift();
             shift.setOwner("shift");
-            shift.setType("testType");
+            Type type = new Type();
+            type.setId(1);
+            type.setName("test");
+            shift.setType(type);
             shift.setDescription("test case shift");
             Date startDate = new Date();
             Shift shift2 = new Shift();
             shift2.setOwner("shift");
-            shift2.setType("testType");
+            shift2.setType(type);
             shift2.setDescription("test case shift2");
             addedShift = httpsResource.path("/resources/shift/start").accept(MediaType.APPLICATION_XML).type("application/xml").put(Shift.class, shift);
             Shift addedShift2 = httpsResource.path("/resources/shift/start").accept(MediaType.APPLICATION_XML).type("application/xml").put(Shift.class, shift2);

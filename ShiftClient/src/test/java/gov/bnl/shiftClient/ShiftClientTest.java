@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public class ShiftClientTest {
 
     private static ShiftClient client;
-    private final String type = "testType";
+    private final String type = "test";
 
     @BeforeClass
     public static void setup() {
@@ -34,7 +34,10 @@ public class ShiftClientTest {
     @Test
     public void startShiftTest() {
         Shift shift = new Shift();
-        shift.setOwner("shiftTestCase");
+        shift.setOwner("eschuhmacher");
+        Type type = new Type();
+        type.setId(1);
+        type.setName("test");
         shift.setType(type);
         Shift addedShift = client.start(shift);
         assertEquals(addedShift.getOwner(), shift.getOwner());
@@ -50,7 +53,7 @@ public class ShiftClientTest {
 
     @Test
     public void getShiftsTest() {
-        Collection<Shift> shifts = client.listShifts("testType");
+        Collection<Shift> shifts = client.listShifts("test");
         assertTrue(shifts.size() > 0);
     }
 
@@ -58,9 +61,16 @@ public class ShiftClientTest {
     public void getShiftByMap() {
         MultivaluedMap<String, String> map = new MultivaluedMapImpl();
         map.add("owner", "shift");
-        Collection<Shift> shifts1 = client.findShifts(map, type);
+        Collection<Shift> shifts1 = client.findShifts(map);
         map.add("to",  String.valueOf(new Date().getTime()));
-        Collection<Shift> shifts2 =  client.findShifts(map, type);
+        Collection<Shift> shifts2 =  client.findShifts(map);
         assertEquals(shifts1.size(), shifts2.size());
+    }
+
+    @Test
+    public void getListTypes() {
+        Collection<Type> types = client.listTypes();
+        assertTrue(types.size() > 0);
+        assertTrue(types.iterator().next().getName() != null);
     }
 }

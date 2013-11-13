@@ -13,7 +13,7 @@ import java.util.Date;
 public class XmlShift {
 
     private Integer id;
-    private String type;
+    private Type type;
     private String owner;
     private Date startDate;
     private Date endDate;
@@ -31,10 +31,10 @@ public class XmlShift {
     /**
      * Creates a new instance of XmlShift.
      *
-     * @param logId log id
+     * @param shiftId shift id
      */
-    public XmlShift(Integer logId) {
-        this.id = logId;
+    public XmlShift(Integer shiftId) {
+        this.id = shiftId;
     }
 
     /**
@@ -155,8 +155,7 @@ public class XmlShift {
      *
      * @return type shift type
      */
-    @XmlAttribute
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
@@ -165,7 +164,7 @@ public class XmlShift {
      *
      * @param type shift type
      */
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
     /**

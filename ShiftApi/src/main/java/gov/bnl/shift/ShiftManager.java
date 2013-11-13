@@ -4,10 +4,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -48,14 +51,17 @@ public class ShiftManager {
      * @return Shift with found shift
      * @throws ShiftFinderException on SQLException
      */
-    public Shift findShiftById(final Integer shiftId, final String type) throws ShiftFinderException {
+    public Shift findShiftById(final Integer shiftId, final String typeName) throws ShiftFinderException {
+        List<Integer> typeIds = findTypesIdByName(typeName);
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
         final Root<Shift> from = cq.from(Shift.class);
+        Join<Shift, Type> type = from.join(Shift_.type, JoinType.LEFT);
+
         final CriteriaQuery<Shift> select = cq.select(from);
         final Predicate idPredicate = cb.equal(from.get("id"), shiftId);
-        final Predicate typePredicate = cb.equal(from.get("type"), type);
+        final Predicate typePredicate = cb.equal(type.get(Type_.id).in(typeIds), typeIds);
         select.where(cb.and(idPredicate, typePredicate));
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(select);
@@ -94,14 +100,10 @@ public class ShiftManager {
         final List<String> descriptions = new LinkedList<String>();
         final List<String> leadOperators = new LinkedList<String>();
         final List<String> onShiftOperators = new LinkedList<String>();
-        final List<String> types = new LinkedList<String>();
+        final List<Integer> typeIds = new LinkedList<Integer>();
         final List<String> closeUsers = new LinkedList<String>();
         String shift_start_date = null;
         String shift_end_date = null;
-        em = JPAUtil.getEntityManagerFactory().createEntityManager();
-        final CriteriaBuilder cb = em.getCriteriaBuilder();
-        final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
-        final Root<Shift> from = cq.from(Shift.class);
         for (final Map.Entry<String, List<String>> match : matches.entrySet()) {
             final String key = match.getKey().toLowerCase();
             if (key.equals("id")) {
@@ -117,7 +119,7 @@ public class ShiftManager {
             } else if (key.equals("description")) {
                 descriptions.addAll(match.getValue());
             } else if (key.equals("type")) {
-                types.addAll(match.getValue());
+                typeIds.addAll(findTypesIdByName(match.getValue().toArray(new String[match.getValue().size()])));
             } else if (key.equals("leadOperator")) {
                 leadOperators.addAll(match.getValue());
             } else if (key.equals("onShiftPersonal")) {
@@ -126,6 +128,11 @@ public class ShiftManager {
                 onShiftOperators.addAll(match.getValue());
             }
         }
+        em = JPAUtil.getEntityManagerFactory().createEntityManager();
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
+        final Root<Shift> from = cq.from(Shift.class);
+        Join<Shift, Type> type = from.join(Shift_.type, JoinType.LEFT);
         Predicate idPredicate = cb.disjunction();
         if (!shift_ids.isEmpty()) {
         idPredicate = cb.or(from.get(Shift_.id).in(shift_ids), idPredicate);
@@ -139,8 +146,8 @@ public class ShiftManager {
             ownerPredicate = cb.or(from.get(Shift_.description).in(descriptions), descriptionPredicate);
         }
         Predicate typenPredicate = cb.disjunction();
-        if(!types.isEmpty()) {
-            typenPredicate = cb.or(from.get(Shift_.type).in(types), typenPredicate);
+        if(!typeIds.isEmpty()) {
+            typenPredicate = cb.or(type.get(Type_.id).in(typeIds), typenPredicate);
         }
         Predicate leadPredicate = cb.disjunction();
         if(!leadOperators.isEmpty()) {
@@ -235,7 +242,7 @@ public class ShiftManager {
      */
     public Shift endShift(final Shift shift) throws ShiftFinderException {
         try {
-            final Shift existingShift = findShiftById(shift.getId(), shift.getType());
+            final Shift existingShift = findShiftById(shift.getId(), shift.getType().getName());
             existingShift.setEndDate(new Date());
             JPAUtil.update(existingShift);
             return existingShift;
@@ -256,7 +263,7 @@ public class ShiftManager {
      */
     public Shift closeShift(final Shift shift, final String user) throws ShiftFinderException {
         try {
-            final Shift existingShift = findShiftById(shift.getId(), shift.getType());
+            final Shift existingShift = findShiftById(shift.getId(), shift.getType().getName());
             existingShift.setCloseShiftUser(user);
             JPAUtil.update(existingShift);
             return existingShift;
@@ -270,13 +277,15 @@ public class ShiftManager {
      * Find the last open shift
      * @throws ShiftFinderException
      */
-    public Shift getOpenShift(final String shiftType) throws ShiftFinderException {
+    public Shift getOpenShift(final String typeName) throws ShiftFinderException {
+        List<Integer> typeIds = findTypesIdByName(typeName);
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
         final Root<Shift> from = cq.from(Shift.class);
+        Join<Shift, Type> type = from.join(Shift_.type, JoinType.LEFT);
         final CriteriaQuery<Shift> select = cq.select(from);
-        final Predicate typePredicate = cb.equal(from.get("type"), shiftType);
+        final Predicate typePredicate = cb.equal(type.get(Type_.id), typeIds);
         final Predicate endDatePredicate = cb.isNull(from.get("endDate"));
         final Predicate finalPredicate = cb.and(typePredicate, endDatePredicate);
         select.where(finalPredicate);
@@ -346,24 +355,60 @@ public class ShiftManager {
         }
     }
 
-    public String listTypes() {
+    public Types listTypes() {
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<Type> cq = cb.createQuery(Type.class);
+        final Root<Type> from = cq.from(Type.class);
+        final CriteriaQuery<Type> select = cq.select(from);
+        final TypedQuery<Type> typedQuery = em.createQuery(select);
         JPAUtil.startTransaction(em);
         try {
-            final TypedQuery<String> query = em.createQuery("select distinct(s.type) from Shift s", String.class);
-            final StringBuilder result = new StringBuilder();
-            final List<String> rs = query.getResultList();
+            final Types result = new Types();
+            final List<Type> rs = typedQuery.getResultList();
             if (rs != null) {
-                Iterator<String> iterator = rs.iterator();
+                Iterator<Type> iterator = rs.iterator();
                 while (iterator.hasNext()) {
-                    result.append(iterator.next()).append(",");
+                    result.add(iterator.next());
                 }
             }
-            return result.substring(0, result.length() - 1);
+
+            return result;
         } catch (Exception e) {
             throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                     "JPA exception: " + e);
         } finally {
             JPAUtil.finishTransacton(em);
-        }        }
+        }
+    }
+
+    public List<Integer> findTypesIdByName(final String... names) {
+        em = JPAUtil.getEntityManagerFactory().createEntityManager();
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<Type> cq = cb.createQuery(Type.class);
+        final Root<Type> from = cq.from(Type.class);
+        final CriteriaQuery<Type> select = cq.select(from);
+        Predicate typePredicate = cb.disjunction();
+        typePredicate = cb.or(from.get(Type_.name).in(names), typePredicate);
+        select.where(typePredicate);
+        final TypedQuery<Type> typedQuery = em.createQuery(select);
+        JPAUtil.startTransaction(em);
+        try {
+            final List<Integer> result = new ArrayList<Integer>();
+            final List<Type> rs = typedQuery.getResultList();
+            if (rs != null) {
+                Iterator<Type> iterator = rs.iterator();
+                while (iterator.hasNext()) {
+                    result.add(iterator.next().getId());
+                }
+            }
+
+            return result;
+        } catch (Exception e) {
+            throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
+                    "JPA exception: " + e);
+        } finally {
+            JPAUtil.finishTransacton(em);
+        }
+    }
 }

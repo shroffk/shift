@@ -1,5 +1,11 @@
 package gov.bnl.shift;
 
+import com.sun.jersey.core.util.MultivaluedMapImpl;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -7,8 +13,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -46,7 +59,12 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            final Shifts result = shiftManager.listAllShifts();
+            Shifts result;
+            if(uriInfo.getQueryParameters() == null || uriInfo.getQueryParameters().isEmpty()) {
+                result = shiftManager.listAllShifts();
+            } else {
+                result = shiftManager.findShiftsByMultiMatch(uriInfo.getQueryParameters());
+            }
             db.commit();
             final Response r = Response.ok(result).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
@@ -64,19 +82,19 @@ public class ShiftResource {
     /**
      * GET method for retrieving a collection of types instances,
      *
-     * @return HTTP Response
+     * @return HTTP Rfesponse
      */
     @GET
     @Path("type")
     @Produces({"application/xml", "application/json"})
-    public Response listTypes() {
+    public Response listTypes() throws ParserConfigurationException, IOException, SAXException {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
         try {
             db.getConnection();
             db.beginTransaction();
-            final String result = shiftManager.listTypes();
+            final Types result = shiftManager.listTypes();
             db.commit();
             final Response r = Response.ok(result).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
@@ -84,7 +102,7 @@ public class ShiftResource {
             return r;
         } catch (ShiftFinderException e) {
             log.warning(user + "|" + uriInfo.getPath() + "|GET|ERROR|"
-                    + e.getResponseStatusCode() +  "|cause=" + e);
+                    + e.getResponseStatusCode() + "|cause=" + e);
             return e.toResponse();
         } finally {
             db.releaseConnection();
@@ -109,7 +127,9 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            final Shifts result = shiftManager.findShiftsByMultiMatch(type, uriInfo.getQueryParameters());
+            final MultivaluedMap<String, String> map = new MultivaluedMapImpl();
+            map.add("type", type);
+            final Shifts result = shiftManager.findShiftsByMultiMatch(map);
             db.commit();
             final Response r = Response.ok(result).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
@@ -133,7 +153,7 @@ public class ShiftResource {
     @GET
     @Path("{type}/{shiftId}")
     @Produces({"application/xml", "application/json"})
-    public Response read(final @PathParam("type") String type, final @PathParam("shiftId") Integer shiftId) {
+    public Response read(final @PathParam("type") String typeName, final @PathParam("shiftId") Integer shiftId) {
         audit.info("getting shift:" + shiftId);
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
@@ -143,7 +163,7 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            result = shiftManager.findShiftById(shiftId, type);
+            result = shiftManager.findShiftById(shiftId, typeName);
             db.commit();
             Response r;
             if (result == null) {
@@ -178,7 +198,7 @@ public class ShiftResource {
         System.out.println(securityContext.getUserPrincipal());
         um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
-            final Shift openShift = shiftManager.getOpenShift(newShift.getType());
+            final Shift openShift = shiftManager.getOpenShift(newShift.getType().getName());
             if (openShift != null) {
                 throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                         "The shift " + openShift.getId() + " is still open, please continue using that shift or end it before trying to start a new one");

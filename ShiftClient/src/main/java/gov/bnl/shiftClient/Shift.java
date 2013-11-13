@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.*;
 public class Shift implements Serializable {
 
     private Integer id;
-    private String type;
+    private Type type;
     private String owner;
     private Date startDate;
     private Date endDate;
@@ -156,7 +156,7 @@ public class Shift implements Serializable {
      *
      * @return type shift type
      */
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
@@ -165,7 +165,7 @@ public class Shift implements Serializable {
      *
      * @param type shift type
      */
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
     /**
