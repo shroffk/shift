@@ -131,7 +131,7 @@ public class ShiftResource {
             map.add("type", type);
             final Shifts result = shiftManager.findShiftsByMultiMatch(map);
             db.commit();
-            final Response r = Response.ok(result).build();
+            final Response r = Response.ok(result.getShiftList().iterator().next()).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
                     + "|returns " + result.getShifts().size() + " shifts");
             return r;
@@ -287,5 +287,13 @@ public class ShiftResource {
         } finally {
             db.releaseConnection();
         }
+    }
+
+    public void setSecurityContext(final javax.ws.rs.core.SecurityContext securityContext) {
+        this.securityContext = securityContext;
+    }
+
+    public void setUriInfo(final UriInfo info) {
+        this.uriInfo = info;
     }
 }

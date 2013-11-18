@@ -25,7 +25,7 @@ public class ShiftClientTest {
     public static void setup() {
         try {
             client = ShiftClientBuilder.serviceURL()
-                    .withHTTPAuthentication(true).username("shift").password("shift").create();
+                    .withHTTPAuthentication(true).username("eschuhmacher").password("qUfa8Hec").create();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -46,14 +46,14 @@ public class ShiftClientTest {
 
     @Test
     public void endShiftTest() {
-        Shift shift = client.listShifts(type).iterator().next();
+        Shift shift = client.getLastOpenShift("test");
         Shift endedShift = client.end(shift);
         assertEquals(endedShift, shift);
     }
 
     @Test
     public void getShiftsTest() {
-        Collection<Shift> shifts = client.listShifts("test");
+        Collection<Shift> shifts = client.listShifts();
         assertTrue(shifts.size() > 0);
     }
 
@@ -62,7 +62,7 @@ public class ShiftClientTest {
         MultivaluedMap<String, String> map = new MultivaluedMapImpl();
         map.add("owner", "shift");
         Collection<Shift> shifts1 = client.findShifts(map);
-        map.add("to",  String.valueOf(new Date().getTime()));
+        map.add("to",  String.valueOf(new Date().getTime() /1000));
         Collection<Shift> shifts2 =  client.findShifts(map);
         assertEquals(shifts1.size(), shifts2.size());
     }
@@ -72,5 +72,11 @@ public class ShiftClientTest {
         Collection<Type> types = client.listTypes();
         assertTrue(types.size() > 0);
         assertTrue(types.iterator().next().getName() != null);
+    }
+
+    @Test
+    public void getLastOpenShift() {
+        Shift shift = client.getLastOpenShift(type);
+        assertEquals(type, shift.getType().getName());
     }
 }

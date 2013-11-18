@@ -240,13 +240,27 @@ public class ShiftClientImpl implements ShiftClient {
     }
 
     @Override
-    public Collection<Shift> listShifts(final String type) throws ShiftFinderException {
+    public Shift getLastOpenShift(final String type) throws ShiftFinderException {
+        return wrappedSubmit(new Callable<Shift>() {
+
+            @Override
+            public Shift call() throws Exception {
+                final XmlShift xmlShift = service.path("shift").path(type)
+                        .accept(MediaType.APPLICATION_XML)
+                        .accept(MediaType.APPLICATION_JSON).get(XmlShift.class);
+                return new Shift(xmlShift);
+            }
+        });
+    }
+
+    @Override
+    public Collection<Shift> listShifts() throws ShiftFinderException {
         return wrappedSubmit(new Callable<Collection<Shift>>() {
 
             @Override
             public Collection<Shift> call() throws Exception {
                 final Collection<Shift> shifts = new LinkedHashSet<Shift>();
-                final XmlShifts xmlShifts = service.path("shift").path(type)
+                final XmlShifts xmlShifts = service.path("shift")
                         .accept(MediaType.APPLICATION_XML)
                         .accept(MediaType.APPLICATION_JSON).get(XmlShifts.class);
                 for (XmlShift xmlShift : xmlShifts.getShifts()) {

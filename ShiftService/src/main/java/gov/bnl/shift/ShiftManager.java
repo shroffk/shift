@@ -159,25 +159,25 @@ public class ShiftManager {
         }
         Predicate datePredicate = cb.disjunction();
         if(shift_end_date != null || shift_start_date != null) {
-        if (shift_start_date != null && shift_end_date == null) {
-            final Date jStart = new java.util.Date(Long.valueOf(shift_start_date) * 1000);
-            final Date jEndNow = new java.util.Date(Calendar.getInstance().getTime().getTime());
-            datePredicate = cb.between(from.get(Shift_.startDate),
+            if (shift_start_date != null && shift_end_date == null) {
+                final Date jStart = new java.util.Date(Long.valueOf(shift_start_date) * 1000);
+                final Date jEndNow = new java.util.Date(Calendar.getInstance().getTime().getTime());
+                datePredicate = cb.between(from.get(Shift_.startDate),
+                            jStart,
+                            jEndNow);
+            } else if (shift_start_date == null && shift_end_date != null) {
+                final Date jStart1970 = new java.util.Date(0);
+                final Date jEnd = new java.util.Date(Long.valueOf(shift_end_date) * 1000);
+                datePredicate = cb.between(from.get(Shift_.startDate),
+                        jStart1970,
+                        jEnd);
+            } else {
+                final Date jStart = new java.util.Date(Long.valueOf(shift_start_date) * 1000);
+                final Date jEnd = new java.util.Date(Long.valueOf(shift_end_date) * 1000);
+                datePredicate = cb.between(from.get(Shift_.startDate),
                         jStart,
-                        jEndNow);
-        } else if (shift_start_date == null && shift_end_date != null) {
-            final Date jStart1970 = new java.util.Date(0);
-            final Date jEnd = new java.util.Date(Long.valueOf(shift_end_date) * 1000);
-            datePredicate = cb.between(from.get(Shift_.startDate),
-                    jStart1970,
-                    jEnd);
-        } else {
-            final Date jStart = new java.util.Date(Long.valueOf(shift_start_date) * 1000);
-            final Date jEnd = new java.util.Date(Long.valueOf(shift_end_date) * 1000);
-            datePredicate = cb.between(from.get(Shift_.startDate),
-                    jStart,
-                    jEnd);
-        }
+                        jEnd);
+            }
         }
         final Predicate finalPredicate = cb.and(idPredicate, ownerPredicate, descriptionPredicate, typenPredicate,
                 datePredicate, leadPredicate, onShiftPersonalPredicate, closeUserPredicate);

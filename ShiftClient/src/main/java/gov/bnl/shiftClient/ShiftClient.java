@@ -17,7 +17,15 @@ public interface ShiftClient {
      * @return string collection of shifts
      * @throws ShiftFinderException
      */
-    Collection<Shift> listShifts(final String type) throws ShiftFinderException;
+    Collection<Shift> listShifts() throws ShiftFinderException;
+
+    /**
+     * Get a list of all the shifts currently existings
+     *
+     * @return string collection of shifts
+     * @throws ShiftFinderException
+     */
+    Shift getLastOpenShift(final String type) throws ShiftFinderException;
 
     /**
      * Get a list of all the types currently existings
