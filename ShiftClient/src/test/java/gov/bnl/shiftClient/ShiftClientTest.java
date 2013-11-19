@@ -25,7 +25,7 @@ public class ShiftClientTest {
     public static void setup() {
         try {
             client = ShiftClientBuilder.serviceURL()
-                    .withHTTPAuthentication(true).username("eschuhmacher").password("qUfa8Hec").create();
+                    .withHTTPAuthentication(true).username("shift").password("shift").create();
         } catch (Exception e) {
             e.printStackTrace();
         }
