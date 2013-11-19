@@ -22,6 +22,7 @@ public class Shift implements Serializable {
     private String onShiftPersonal;
     private String report;
     private String closeShiftUser;
+    private String status;
 
     public Shift() {
     }
@@ -41,6 +42,7 @@ public class Shift implements Serializable {
         this.report = shift.getReport();
         this.closeShiftUser = shift.getCloseShiftUser();
         this.type = shift.getType();
+        this.status = shift.getStatus();
     }
 
 
@@ -223,6 +225,23 @@ public class Shift implements Serializable {
         this.closeShiftUser = closeShiftUser;
     }
 
+    /**
+     * Getter for shift status.
+     *
+     * @return status shift status
+     */
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     * Setter for shift status.
+     *
+     * @param status shift status
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public int compareTo(Shift num) {
         int x = startDate.compareTo(num.startDate);

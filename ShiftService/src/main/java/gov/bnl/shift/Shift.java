@@ -264,6 +264,23 @@ public class Shift implements Serializable {
         this.closeShiftUser = closeShiftUser;
     }
 
+    /**
+     * Getter for shift end shift user.
+     *
+     * @return closeShiftUser shift closeShiftUser
+     */
+    @XmlAttribute
+    public String getStatus() {
+        if (this.endDate == null) {
+            return "Active";
+        } else if (this.endDate != null && this.closeShiftUser == null) {
+            return "End";
+        } else if (this.endDate != null && this.closeShiftUser != null) {
+            return "Close";
+        }
+        return "";
+    }
+
 
     public int compareTo(Shift num) {
         int x = startDate.compareTo(num.startDate);

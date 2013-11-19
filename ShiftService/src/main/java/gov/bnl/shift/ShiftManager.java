@@ -98,6 +98,7 @@ public class ShiftManager {
         final List<String> onShiftOperators = new LinkedList<String>();
         final List<Integer> typeIds = new LinkedList<Integer>();
         final List<String> closeUsers = new LinkedList<String>();
+        String status = null;
         String shift_start_date = null;
         String shift_end_date = null;
         for (final Map.Entry<String, List<String>> match : matches.entrySet()) {
@@ -106,10 +107,10 @@ public class ShiftManager {
                 shift_ids.addAll(match.getValue());
                 //Only allow one date to query for from and to, if multiple ones appear on the query only use the first one
             } else if(key.equals("from")) {
-                shift_start_date = match.getValue().get(0);
+                shift_start_date = match.getValue().iterator().next();
                 //Only allow one date to query for from and to, if multiple ones appear on the query only use the first one
             } else if (key.equals("to")) {
-                shift_end_date = match.getValue().get(0);
+                shift_end_date = match.getValue().iterator().next();
             } else if (key.equals("owner")) {
                 shift_owners.addAll(match.getValue());
             } else if (key.equals("description")) {
@@ -122,6 +123,8 @@ public class ShiftManager {
                 onShiftOperators.addAll(match.getValue());
             } else if (key.equals("closeUser")) {
                 onShiftOperators.addAll(match.getValue());
+            } else if (key.equals("status")) {
+                status = match.getValue().iterator().next();
             }
         }
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
@@ -155,8 +158,9 @@ public class ShiftManager {
         }
         Predicate closeUserPredicate = cb.disjunction();
         if(!closeUsers.isEmpty()) {
-            closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).in(closeUserPredicate), closeUserPredicate);
+            closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).in(closeUsers), closeUserPredicate);
         }
+
         Predicate datePredicate = cb.disjunction();
         if(shift_end_date != null || shift_start_date != null) {
             if (shift_start_date != null && shift_end_date == null) {
@@ -179,8 +183,20 @@ public class ShiftManager {
                         jEnd);
             }
         }
+        Predicate statusPredicate = cb.disjunction();
+        if(status != null) {
+            if (status.equalsIgnoreCase("active")) {
+                statusPredicate = cb.or(from.get(Shift_.endDate).isNull(), statusPredicate);
+            } else if (status.equalsIgnoreCase("end")) {
+                statusPredicate = cb.or(from.get(Shift_.endDate).isNotNull(), statusPredicate);
+                closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).isNull(), closeUserPredicate);
+            } else if (status.equalsIgnoreCase("close")) {
+                statusPredicate = cb.or(from.get(Shift_.endDate).isNotNull(), statusPredicate);
+                closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).isNotNull(), closeUserPredicate);
+            }
+        }
         final Predicate finalPredicate = cb.and(idPredicate, ownerPredicate, descriptionPredicate, typenPredicate,
-                datePredicate, leadPredicate, onShiftPersonalPredicate, closeUserPredicate);
+                datePredicate, leadPredicate, onShiftPersonalPredicate, closeUserPredicate, statusPredicate);
         cq.where(finalPredicate);
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(cq);

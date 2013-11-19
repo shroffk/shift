@@ -31,6 +31,7 @@ public class Shifts extends LinkedList<Shift> {
     @XmlTransient
     public List<Shift> getShifts() {
         return this;
+
     }
 
     public void setShifts(List<Shift> shifts) {

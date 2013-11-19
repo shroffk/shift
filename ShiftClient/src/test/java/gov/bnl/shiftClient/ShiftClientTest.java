@@ -42,11 +42,13 @@ public class ShiftClientTest {
         Shift addedShift = client.start(shift);
         assertEquals(addedShift.getOwner(), shift.getOwner());
         assertTrue(addedShift.getId() != null);
+
     }
 
     @Test
     public void endShiftTest() {
         Shift shift = client.getLastOpenShift("test");
+        assertEquals("Active",shift.getStatus());
         Shift endedShift = client.end(shift);
         assertEquals(endedShift, shift);
     }
