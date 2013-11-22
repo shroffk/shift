@@ -255,6 +255,10 @@ public class ShiftManager {
     public Shift endShift(final Shift shift) throws ShiftFinderException {
         try {
             final Shift existingShift = findShiftById(shift.getId());
+            if(existingShift.getEndDate() != null)  {
+                throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
+                        "The shift " + existingShift.getId() + " is already end");
+            }
             existingShift.setEndDate(new Date());
             JPAUtil.update(existingShift);
             return existingShift;
@@ -276,6 +280,10 @@ public class ShiftManager {
     public Shift closeShift(final Shift shift, final String user) throws ShiftFinderException {
         try {
             final Shift existingShift = findShiftById(shift.getId());
+            if(existingShift.getEndDate() == null || existingShift.getCloseShiftUser() != null)  {
+                throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
+                        "The shift " + existingShift.getId() + " is already close");
+            }
             existingShift.setCloseShiftUser(user);
             JPAUtil.update(existingShift);
             return existingShift;
