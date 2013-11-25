@@ -205,9 +205,9 @@ public class ShiftResource {
             }
             db.getConnection();
             db.beginTransaction();
-            if (!um.userHasAdminRole()) {
-                shiftManager.checkUserBelongsToGroup(um.getUserName(), newShift);
-            }
+//            if (!um.userHasAdminRole()) {
+//                shiftManager.checkUserBelongsToGroup(um.getUserName(), newShift);
+//            }
             final Shift result = shiftManager.startShift(newShift);
             db.commit();
             final Response r =  Response.ok(result).build();
@@ -239,9 +239,9 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            if (!um.userHasAdminRole()) {
-                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
-            }
+//            if (!um.userHasAdminRole()) {
+//                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
+//            }
             final Shift result = shiftManager.endShift(shift);
             db.commit();
             final Response r =  Response.ok(result).build();
@@ -273,9 +273,9 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-            if (!um.userHasAdminRole()) {
-                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
-            }
+//            if (!um.userHasAdminRole()) {
+//                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
+//            }
             final Shift result = shiftManager.closeShift(shift, um.getUserName());
             db.commit();
             final Response r =  Response.ok(result).build();
