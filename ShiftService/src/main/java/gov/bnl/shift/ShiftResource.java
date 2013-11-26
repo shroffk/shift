@@ -1,11 +1,7 @@
 package gov.bnl.shift;
 
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -16,13 +12,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.List;
 import java.util.logging.Logger;
+
 
 /**
  *
@@ -158,7 +152,6 @@ public class ShiftResource {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
-        System.out.println(user);
         Shift result = null;
         try {
             db.getConnection();
@@ -195,7 +188,6 @@ public class ShiftResource {
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         final UserManager um = UserManager.getInstance();
-        System.out.println(securityContext.getUserPrincipal());
         um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
             final Shift openShift = shiftManager.getOpenShift(newShift.getType().getName());
@@ -205,9 +197,6 @@ public class ShiftResource {
             }
             db.getConnection();
             db.beginTransaction();
-//            if (!um.userHasAdminRole()) {
-//                shiftManager.checkUserBelongsToGroup(um.getUserName(), newShift);
-//            }
             final Shift result = shiftManager.startShift(newShift);
             db.commit();
             final Response r =  Response.ok(result).build();
@@ -234,14 +223,11 @@ public class ShiftResource {
         final UserManager um = UserManager.getInstance();
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
-        System.out.println(securityContext.getUserPrincipal());
         um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
             db.getConnection();
             db.beginTransaction();
-//            if (!um.userHasAdminRole()) {
-//                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
-//            }
+//            shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
             final Shift result = shiftManager.endShift(shift);
             db.commit();
             final Response r =  Response.ok(result).build();
@@ -268,14 +254,11 @@ public class ShiftResource {
         final UserManager um = UserManager.getInstance();
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
-        System.out.println(securityContext.getUserPrincipal());
         um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
             db.getConnection();
             db.beginTransaction();
-//            if (!um.userHasAdminRole()) {
-//                shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
-//            }
+//            shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
             final Shift result = shiftManager.closeShift(shift, um.getUserName());
             db.commit();
             final Response r =  Response.ok(result).build();

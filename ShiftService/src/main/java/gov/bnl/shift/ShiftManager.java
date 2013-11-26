@@ -238,9 +238,7 @@ public class ShiftManager {
         final UserManager um = UserManager.getInstance();
         if (!um.userIsInGroup(shift.getOwner())) {
             throw new ShiftFinderException(Response.Status.FORBIDDEN,
-                    "User '" + um.getUserName()
-                            + "' does not belong to owner group '" + shift.getOwner()
-                            + "' of shift '" + shift.getId() + "'");
+                    "User '" + um.getUserName() + "' does not belong to owner group '" + shift.getOwner() + "'");
         }
     }
 

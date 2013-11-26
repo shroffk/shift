@@ -24,7 +24,7 @@
         <web-resource-collection>
             <web-resource-name>create / update shift(s)</web-resource-name>
             <description/>
-            <url-pattern>/resources/shift/*</url-pattern>
+            <url-pattern>/resources/shift/start</url-pattern>
             <http-method>PUT</http-method>
         </web-resource-collection>
         <auth-constraint>
@@ -38,9 +38,27 @@
         </user-data-constraint>
     </security-constraint>
     <security-constraint>
-        <display-name>Add or Update Shifts</display-name>
+        <display-name>end Shifts</display-name>
         <web-resource-collection>
-            <web-resource-name>create / update shift(s)</web-resource-name>
+            <web-resource-name>end shift(s)</web-resource-name>
+            <description/>
+            <url-pattern>/resources/shift/end</url-pattern>
+            <http-method>PUT</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>ShiftMod</role-name>
+            <role-name>Administrator</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <description/>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+    <security-constraint>
+        <display-name>close Shifts</display-name>
+        <web-resource-collection>
+            <web-resource-name>close shift(s)</web-resource-name>
             <description/>
             <url-pattern>/resources/shift/close</url-pattern>
             <http-method>PUT</http-method>

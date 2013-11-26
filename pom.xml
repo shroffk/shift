@@ -106,17 +106,6 @@
             <version>1.7.5</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey.jersey-test-framework</groupId>
-            <artifactId>jersey-test-framework-grizzly2</artifactId>
-            <version>1.17</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey.jersey-test-framework</groupId>
-            <artifactId>jersey-test-framework-http</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.embedded</groupId>
             <artifactId>maven-embedded-glassfish-plugin</artifactId>
             <version>3.1.2</version>
