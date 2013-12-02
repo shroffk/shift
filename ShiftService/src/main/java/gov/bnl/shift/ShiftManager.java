@@ -190,7 +190,7 @@ public class ShiftManager {
             } else if (status.equalsIgnoreCase("end")) {
                 statusPredicate = cb.or(from.get(Shift_.endDate).isNotNull(), statusPredicate);
                 closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).isNull(), closeUserPredicate);
-            } else if (status.equalsIgnoreCase("close")) {
+            } else if (status.equalsIgnoreCase("signed")) {
                 statusPredicate = cb.or(from.get(Shift_.endDate).isNotNull(), statusPredicate);
                 closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).isNotNull(), closeUserPredicate);
             }
@@ -257,9 +257,14 @@ public class ShiftManager {
                 throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                         "The shift " + existingShift.getId() + " is already end");
             }
-            existingShift.setEndDate(new Date());
-            JPAUtil.update(existingShift);
-            return existingShift;
+            //Prevent that the user override this values
+            shift.setStartDate(existingShift.getStartDate());
+            shift.setOwner(existingShift.getOwner());
+            shift.setLeadOperator(existingShift.getLeadOperator());
+            shift.setType(existingShift.getType());
+            shift.setEndDate(new Date());
+            JPAUtil.update(shift);
+            return shift;
         } catch (Exception e) {
             throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                     "JPA exception: " + e);
@@ -282,9 +287,15 @@ public class ShiftManager {
                 throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                         "The shift " + existingShift.getId() + " is already close");
             }
-            existingShift.setCloseShiftUser(user);
-            JPAUtil.update(existingShift);
-            return existingShift;
+            //Prevent that the user override this values
+            shift.setStartDate(existingShift.getStartDate());
+            shift.setEndDate(existingShift.getEndDate());
+            shift.setOwner(existingShift.getOwner());
+            shift.setLeadOperator(existingShift.getLeadOperator());
+            shift.setType(existingShift.getType());
+            shift.setCloseShiftUser(user);
+            JPAUtil.update(shift);
+            return shift;
         } catch (Exception e) {
             throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                     "JPA exception: " + e);

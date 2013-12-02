@@ -276,7 +276,7 @@ public class Shift implements Serializable {
         } else if (this.endDate != null && this.closeShiftUser == null) {
             return "End";
         } else if (this.endDate != null && this.closeShiftUser != null) {
-            return "Close";
+            return "Signed";
         }
         return "";
     }
