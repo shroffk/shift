@@ -103,27 +103,27 @@ public class ShiftManager {
         String shift_end_date = null;
         for (final Map.Entry<String, List<String>> match : matches.entrySet()) {
             final String key = match.getKey().toLowerCase();
-            if (key.equals("id")) {
+            if (key.equalsIgnoreCase("id")) {
                 shift_ids.addAll(match.getValue());
                 //Only allow one date to query for from and to, if multiple ones appear on the query only use the first one
-            } else if(key.equals("from")) {
+            } else if(key.equalsIgnoreCase("from")) {
                 shift_start_date = match.getValue().iterator().next();
                 //Only allow one date to query for from and to, if multiple ones appear on the query only use the first one
-            } else if (key.equals("to")) {
+            } else if (key.equalsIgnoreCase("to")) {
                 shift_end_date = match.getValue().iterator().next();
-            } else if (key.equals("owner")) {
+            } else if (key.equalsIgnoreCase("owner")) {
                 shift_owners.addAll(match.getValue());
-            } else if (key.equals("description")) {
+            } else if (key.equalsIgnoreCase("description")) {
                 descriptions.addAll(match.getValue());
-            } else if (key.equals("type")) {
+            } else if (key.equalsIgnoreCase("type")) {
                 typeIds.addAll(findTypesIdByName(match.getValue().toArray(new String[match.getValue().size()])));
-            } else if (key.equals("leadOperator")) {
+            } else if (key.equalsIgnoreCase("leadoperator")) {
                 leadOperators.addAll(match.getValue());
-            } else if (key.equals("onShiftPersonal")) {
+            } else if (key.equalsIgnoreCase("onshiftpersonal")) {
                 onShiftOperators.addAll(match.getValue());
-            } else if (key.equals("closeUser")) {
-                onShiftOperators.addAll(match.getValue());
-            } else if (key.equals("status")) {
+            } else if (key.equalsIgnoreCase("closeuser")) {
+                closeUsers.addAll(match.getValue());
+            } else if (key.equalsIgnoreCase("status")) {
                 status = match.getValue().iterator().next();
             }
         }
