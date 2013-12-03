@@ -227,7 +227,7 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-//            shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
+            shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
             final Shift result = shiftManager.endShift(shift);
             db.commit();
             final Response r =  Response.ok(result).build();
@@ -258,7 +258,7 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-//            shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
+            shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
             final Shift result = shiftManager.closeShift(shift, um.getUserName());
             db.commit();
             final Response r =  Response.ok(result).build();
