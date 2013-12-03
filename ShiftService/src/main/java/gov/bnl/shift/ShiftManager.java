@@ -363,7 +363,7 @@ public class ShiftManager {
         final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
         final Root<Shift> from = cq.from(Shift.class);
         final CriteriaQuery<Shift> select = cq.select(from);
-        cq.orderBy(cb.asc(from.get(Shift_.startDate)));
+        cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(select);
         JPAUtil.startTransaction(em);
         try {
