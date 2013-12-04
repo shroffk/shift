@@ -78,22 +78,4 @@ public class JPAUtil {
         }
     }
 
-    public static void remove(Class type, Long id) {
-        EntityManager em = null;
-
-        try {
-            em = JPAUtil.getEntityManagerFactory().createEntityManager();
-            JPAUtil.startTransaction(em);
-
-            Query query = em.createQuery("UPDATE " + type.getName() + " c  SET c.state= edu.msu.nscl.olog.State.Inactive  WHERE c.id = " + id.toString());
-            query.executeUpdate();
-
-            JPAUtil.finishTransacton(em);
-
-        } catch (PersistenceException e) {
-            JPAUtil.transactionFailed(em);
-            throw e;
-        }
-    }
-
 }
