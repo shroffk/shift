@@ -190,6 +190,10 @@ public class ShiftResource {
         final UserManager um = UserManager.getInstance();
         um.setUser(securityContext.getUserPrincipal(), securityContext.isUserInRole("Administrator"));
         try {
+            if(newShift.getType() == null || newShift.getType().getName().isEmpty()) {
+                throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
+                        "The shift do not contains a valid type, please add a valid type before trying to start it");
+            }
             final Shift openShift = shiftManager.getOpenShift(newShift.getType().getName());
             if (openShift != null) {
                 throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
