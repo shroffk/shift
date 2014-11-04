@@ -1,5 +1,8 @@
 package gov.bnl.shift;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -10,13 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -98,6 +95,8 @@ public class ShiftManager {
         final List<String> onShiftOperators = new LinkedList<String>();
         final List<Integer> typeIds = new LinkedList<Integer>();
         final List<String> closeUsers = new LinkedList<String>();
+        final Multimap<String, String> paginate_matches = ArrayListMultimap.create();
+        boolean empty = true;
         String status = null;
         String shift_start_date = null;
         String shift_end_date = null;
@@ -121,6 +120,10 @@ public class ShiftManager {
                 leadOperators.addAll(match.getValue());
             } else if (key.equalsIgnoreCase("onshiftpersonal")) {
                 onShiftOperators.addAll(match.getValue());
+            } else if (key.equals("page")) {
+                paginate_matches.putAll(key, match.getValue());
+            } else if (key.equals("limit")) {
+                paginate_matches.putAll(key, match.getValue());
             } else if (key.equalsIgnoreCase("closeuser")) {
                 closeUsers.addAll(match.getValue());
             } else if (key.equalsIgnoreCase("status")) {
@@ -134,36 +137,44 @@ public class ShiftManager {
         Join<Shift, Type> type = from.join(Shift_.type, JoinType.LEFT);
         Predicate idPredicate = cb.disjunction();
         if (!shift_ids.isEmpty()) {
-        idPredicate = cb.or(from.get(Shift_.id).in(shift_ids), idPredicate);
+            idPredicate = cb.or(from.get(Shift_.id).in(shift_ids), idPredicate);
+            empty = false;
         }
         Predicate ownerPredicate = cb.disjunction();
         if(!shift_owners.isEmpty()) {
             ownerPredicate = cb.or(from.get(Shift_.owner).in(shift_owners), ownerPredicate);
+            empty = false;
         }
         Predicate descriptionPredicate = cb.disjunction();
         if(!descriptions.isEmpty()) {
             ownerPredicate = cb.or(from.get(Shift_.description).in(descriptions), descriptionPredicate);
+            empty = false;
         }
         Predicate typenPredicate = cb.disjunction();
         if(!typeIds.isEmpty()) {
             typenPredicate = cb.or(type.get(Type_.id).in(typeIds), typenPredicate);
+            empty = false;
         }
         Predicate leadPredicate = cb.disjunction();
         if(!leadOperators.isEmpty()) {
             leadPredicate = cb.or(from.get(Shift_.leadOperator).in(leadOperators), leadPredicate);
+            empty = false;
         }
         Predicate onShiftPersonalPredicate = cb.disjunction();
         if(!onShiftOperators.isEmpty()) {
             onShiftPersonalPredicate = cb.or(from.get(Shift_.onShiftPersonal).in(onShiftOperators), onShiftPersonalPredicate);
+            empty = false;
         }
         Predicate closeUserPredicate = cb.disjunction();
         if(!closeUsers.isEmpty()) {
             closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).in(closeUsers), closeUserPredicate);
+            empty = false;
         }
 
         Predicate datePredicate = cb.disjunction();
         if(shift_end_date != null || shift_start_date != null) {
             if (shift_start_date != null && shift_end_date == null) {
+                empty = false;
                 final Date jStart = new java.util.Date(Long.valueOf(shift_start_date) * 1000);
                 final Date jEndNow = new java.util.Date(Calendar.getInstance().getTime().getTime());
                 datePredicate = cb.between(from.get(Shift_.startDate),
@@ -185,6 +196,7 @@ public class ShiftManager {
         }
         Predicate statusPredicate = cb.disjunction();
         if(status != null) {
+            empty = false;
             if (status.equalsIgnoreCase("active")) {
                 statusPredicate = cb.or(from.get(Shift_.endDate).isNull(), statusPredicate);
             } else if (status.equalsIgnoreCase("end")) {
@@ -197,12 +209,34 @@ public class ShiftManager {
         }
         final Predicate finalPredicate = cb.and(idPredicate, ownerPredicate, descriptionPredicate, typenPredicate,
                 datePredicate, leadPredicate, onShiftPersonalPredicate, closeUserPredicate, statusPredicate);
-        cq.where(finalPredicate);
+        if (!empty) {
+            cq.where(finalPredicate);
+        }
+        cq.groupBy(from);
+        cq.distinct(true);
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(cq);
+        if (!paginate_matches.isEmpty()) {
+            String page = null, limit = null;
+            for (Map.Entry<String, Collection<String>> match : paginate_matches.asMap().entrySet()) {
+                if (match.getKey().toLowerCase().equals("limit")) {
+                    limit = match.getValue().iterator().next();
+                }
+                if (match.getKey().toLowerCase().equals("page")) {
+                    page = match.getValue().iterator().next();
+                }
+            }
+            if (limit != null && page != null) {
+                Integer offset = Integer.valueOf(page) * Integer.valueOf(limit) - Integer.valueOf(limit);
+                typedQuery.setFirstResult(offset);
+                typedQuery.setMaxResults(Integer.valueOf(limit));
+            } else if (limit != null) {
+                typedQuery.setMaxResults(Integer.valueOf(limit));
+            }
+        }
         JPAUtil.startTransaction(em);
         if(matches.isEmpty()) {
-            typedQuery.setMaxResults(1);
+            return new Shifts();
         }
         try {
             final Shifts result = new Shifts();
