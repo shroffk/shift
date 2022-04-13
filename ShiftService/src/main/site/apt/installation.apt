@@ -137,7 +137,7 @@ in the web container.
   * Create a new realm called "shift", setting the "Class Name" to
     "com.sun.enterprise.security.auth.realm.ldap.LDAPRealm", and the "JAAS Context" to "ldapRealm".
     "Directory" and "Base DN" should reflect your LDAP configuration. (My integration tests use
-    "ldap://localhost:389" as "Directory" and "dc=s-shifts,dc=local" as "Base DN" .
+    "ldap://localhost:389" as "Directory" and "dc=shift-logs,dc=local" as "Base DN" .
 
   * Add a property called "group-search-filter" with the value "memberUid=%s" to make
     authentication work using the usual posixGroup definitions in the LDAP server.
@@ -156,8 +156,8 @@ in the web container.
     "javax.naming.security.principal" and
     "javax.naming.security.credentials" to specify the name and password used
     to bind to LDAP.
-    (My integration test setup uses "URL" = "ldap://localhost/dc=s-shifts,dc=local",
-    "javax.naming.security.principal" = "cn=shift,dc=s-shifts,dc=local", and
+    (My integration test setup uses "URL" = "ldap://localhost/dc=shift-logs,dc=local",
+    "javax.naming.security.principal" = "cn=shift,dc=shift-logs,dc=local", and
     and "javax.naming.security.credentials" = "1234".)
 
   * Create a new resource called "shift/userManager", setting the "Resource Type" to
