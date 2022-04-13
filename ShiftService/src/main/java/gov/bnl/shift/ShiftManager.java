@@ -14,7 +14,10 @@ import javax.persistence.criteria.Root;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import static gov.bnl.shift.ShiftResource.log;
 /**
  *
  * @author eschuhmacher
@@ -88,6 +91,9 @@ public class ShiftManager {
      * @throws ShiftFinderException wrapping an SQLException
      */
     public Shifts findShiftsByMultiMatch(final MultivaluedMap<String, String> matches) throws ShiftFinderException {
+        List<Predicate> andPredicates = new ArrayList<Predicate>();
+        List<Predicate> orPredicates = new ArrayList<Predicate>();
+        
         final List<String> shift_ids = new LinkedList<String>();
         final List<String> shift_owners = new LinkedList<String>();
         final List<String> descriptions = new LinkedList<String>();
@@ -96,10 +102,11 @@ public class ShiftManager {
         final List<Integer> typeIds = new LinkedList<Integer>();
         final List<String> closeUsers = new LinkedList<String>();
         final Multimap<String, String> paginate_matches = ArrayListMultimap.create();
-        boolean empty = true;
+
         String status = null;
         String shift_start_date = null;
         String shift_end_date = null;
+        
         for (final Map.Entry<String, List<String>> match : matches.entrySet()) {
             final String key = match.getKey().toLowerCase();
             if (key.equalsIgnoreCase("id")) {
@@ -131,6 +138,8 @@ public class ShiftManager {
             }
         }
         em = JPAUtil.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<Shift> cq = cb.createQuery(Shift.class);
         final Root<Shift> from = cq.from(Shift.class);
@@ -138,43 +147,42 @@ public class ShiftManager {
         Predicate idPredicate = cb.disjunction();
         if (!shift_ids.isEmpty()) {
             idPredicate = cb.or(from.get(Shift_.id).in(shift_ids), idPredicate);
-            empty = false;
+            andPredicates.add(idPredicate);
         }
-        Predicate ownerPredicate = cb.disjunction();
         if(!shift_owners.isEmpty()) {
-            ownerPredicate = cb.or(from.get(Shift_.owner).in(shift_owners), ownerPredicate);
-            empty = false;
+            Predicate ownerPredicate = cb.disjunction();
+            for (String s : shift_owners) {
+                ownerPredicate = cb.or(cb.equal(from.get(Shift_.owner), s), ownerPredicate);
+            }
+            andPredicates.add(ownerPredicate);
         }
-        Predicate descriptionPredicate = cb.disjunction();
         if(!descriptions.isEmpty()) {
-            ownerPredicate = cb.or(from.get(Shift_.description).in(descriptions), descriptionPredicate);
-            empty = false;
+            Predicate searchPredicate = cb.disjunction();
+            for (String s : descriptions) {
+                searchPredicate = cb.or(cb.like(from.get(Shift_.description), "%"+s+"%"), searchPredicate);
+            }
+            andPredicates.add(searchPredicate);
         }
-        Predicate typenPredicate = cb.disjunction();
         if(!typeIds.isEmpty()) {
+            Predicate typenPredicate = cb.disjunction();
             typenPredicate = cb.or(type.get(Type_.id).in(typeIds), typenPredicate);
-            empty = false;
+            andPredicates.add(typenPredicate);
         }
-        Predicate leadPredicate = cb.disjunction();
         if(!leadOperators.isEmpty()) {
+            Predicate leadPredicate = cb.disjunction();
             leadPredicate = cb.or(from.get(Shift_.leadOperator).in(leadOperators), leadPredicate);
-            empty = false;
+            andPredicates.add(leadPredicate);
         }
-        Predicate onShiftPersonalPredicate = cb.disjunction();
         if(!onShiftOperators.isEmpty()) {
+            Predicate onShiftPersonalPredicate = cb.disjunction();
             onShiftPersonalPredicate = cb.or(from.get(Shift_.onShiftPersonal).in(onShiftOperators), onShiftPersonalPredicate);
-            empty = false;
+            andPredicates.add(onShiftPersonalPredicate);
         }
-        Predicate closeUserPredicate = cb.disjunction();
-        if(!closeUsers.isEmpty()) {
-            closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).in(closeUsers), closeUserPredicate);
-            empty = false;
-        }
+
 
         Predicate datePredicate = cb.disjunction();
         if(shift_end_date != null || shift_start_date != null) {
             if (shift_start_date != null && shift_end_date == null) {
-                empty = false;
                 final Date jStart = new java.util.Date(Long.valueOf(shift_start_date) * 1000);
                 final Date jEndNow = new java.util.Date(Calendar.getInstance().getTime().getTime());
                 datePredicate = cb.between(from.get(Shift_.startDate),
@@ -193,25 +201,43 @@ public class ShiftManager {
                         jStart,
                         jEnd);
             }
+            andPredicates.add(datePredicate);
         }
-        Predicate statusPredicate = cb.disjunction();
         if(status != null) {
-            empty = false;
+            Predicate statusPredicate = cb.disjunction();
+            Predicate closeUserPredicate = cb.disjunction();
             if (status.equalsIgnoreCase("active")) {
                 statusPredicate = cb.or(from.get(Shift_.endDate).isNull(), statusPredicate);
             } else if (status.equalsIgnoreCase("end")) {
                 statusPredicate = cb.or(from.get(Shift_.endDate).isNotNull(), statusPredicate);
                 closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).isNull(), closeUserPredicate);
+                andPredicates.add(closeUserPredicate);
             } else if (status.equalsIgnoreCase("signed")) {
                 statusPredicate = cb.or(from.get(Shift_.endDate).isNotNull(), statusPredicate);
                 closeUserPredicate = cb.or(from.get(Shift_.closeShiftUser).isNotNull(), closeUserPredicate);
+                andPredicates.add(closeUserPredicate);
             }
+            andPredicates.add(statusPredicate);
         }
-        final Predicate finalPredicate = cb.and(idPredicate, ownerPredicate, descriptionPredicate, typenPredicate,
-                datePredicate, leadPredicate, onShiftPersonalPredicate, closeUserPredicate, statusPredicate);
-        if (!empty) {
-            cq.where(finalPredicate);
+        
+        Predicate finalPredicate = cb.conjunction();
+
+        if (!andPredicates.isEmpty()) {
+            Predicate andfinalPredicate = cb.conjunction();
+            for (Predicate predicate : andPredicates) {
+                andfinalPredicate = cb.and(andfinalPredicate, predicate);
+            }
+            finalPredicate = cb.and(finalPredicate, andfinalPredicate);
         }
+        if (!orPredicates.isEmpty()) {
+            Predicate orfinalPredicate = cb.disjunction();
+            for (Predicate predicate : orPredicates) {
+                orfinalPredicate = cb.or(orfinalPredicate, predicate);
+            }
+            finalPredicate = cb.and(finalPredicate, orfinalPredicate);
+        }
+
+        cq.where(finalPredicate);
         cq.groupBy(from);
         cq.distinct(true);
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
@@ -232,9 +258,11 @@ public class ShiftManager {
                 typedQuery.setMaxResults(Integer.valueOf(limit));
             } else if (limit != null) {
                 typedQuery.setMaxResults(Integer.valueOf(limit));
+            } else {
+                typedQuery.setMaxResults(Integer.valueOf(500));
             }
         }
-        JPAUtil.startTransaction(em);
+
         if(matches.isEmpty()) {
             return new Shifts();
         }
@@ -249,12 +277,22 @@ public class ShiftManager {
                     result.addShift(shift);
                 }
             }
+            log.info("matches criteria " + matches.entrySet().stream().map(e -> {
+                return e.getKey()+":"+String.join("", e.getValue());
+            }).collect(Collectors.joining()) + "  result: " + result.size());
+            em.getTransaction().commit();
             return result;
         } catch (Exception e) {
             throw new ShiftFinderException(Response.Status.INTERNAL_SERVER_ERROR,
                     "JPA exception: " + e);
         } finally {
-            JPAUtil.finishTransacton(em);
+            try {
+                if (em.getTransaction() != null && em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+            } catch (Exception e) {
+            }
+            em.close();
         }
 
     }

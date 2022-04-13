@@ -1,6 +1,5 @@
 package gov.bnl.shift;
 
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import org.xml.sax.SAXException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -10,11 +9,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 
@@ -33,7 +34,7 @@ public class ShiftResource {
     private javax.ws.rs.core.SecurityContext securityContext;
 
     private Logger audit = Logger.getLogger(this.getClass().getPackage().getName() + ".audit");
-    private Logger log = Logger.getLogger(this.getClass().getName());
+    public static Logger log = Logger.getLogger(ShiftResource.class.getName());
 
     /** Creates a new instance of ShiftResource */
     public ShiftResource() {
@@ -115,26 +116,28 @@ public class ShiftResource {
     @Path("{type}")
     @Produces({"application/xml", "application/json"})
     public Response query(final @PathParam("type") String type) {
-        final DbConnection db = DbConnection.getInstance();
+        log.info("search for shift : " + type );
         final ShiftManager shiftManager = ShiftManager.getInstance();
         final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
         try {
-            db.getConnection();
-            db.beginTransaction();
-            final MultivaluedMap<String, String> map = new MultivaluedMapImpl();
+            MultivaluedMap<String, String> map = new MultivaluedHashMap(uriInfo.getQueryParameters());
             map.add("type", type);
-            final Shifts result = shiftManager.findShiftsByMultiMatch(map);
-            db.commit();
-            final Response r = Response.ok(result.getShiftList().iterator().next()).build();
+
+            Shifts result = new Shifts();
+            shiftManager.findShiftsByMultiMatch(map).getShifts().stream().forEach(shift -> {
+                result.add(shift);
+            });
+            Response r = Response.ok(result).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
                     + "|returns " + result.getShifts().size() + " shifts");
+
             return r;
         } catch (ShiftFinderException e) {
             log.warning(user + "|" + uriInfo.getPath() + "|GET|ERROR|"
                     + e.getResponseStatusCode() +  "|cause=" + e);
             return e.toResponse();
         } finally {
-            db.releaseConnection();
+            
         }
     }
 
@@ -231,7 +234,6 @@ public class ShiftResource {
         try {
             db.getConnection();
             db.beginTransaction();
-//            shiftManager.checkUserBelongsToGroup(um.getUserName(), shift);
             final Shift result = shiftManager.endShift(shift);
             db.commit();
             final Response r =  Response.ok(result).build();

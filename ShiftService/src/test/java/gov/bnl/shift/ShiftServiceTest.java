@@ -1,6 +1,5 @@
 package gov.bnl.shift;
 
-import com.sun.jersey.api.client.WebResource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
@@ -25,13 +24,7 @@ import static org.powermock.api.easymock.PowerMock.mockStatic;
 
 public class ShiftServiceTest  {
 
-
-
-
     public static final String PACKAGE_NAME = "gov.bnl.shift";
-    private WebResource ws;
-
-
 
     @Test
     public void testShiftResponse() throws UnsupportedEncodingException {
