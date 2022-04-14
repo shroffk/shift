@@ -127,7 +127,7 @@ public class ShiftResource {
             shiftManager.findShiftsByMultiMatch(map).getShifts().stream().forEach(shift -> {
                 result.add(shift);
             });
-            Response r = Response.ok(result).build();
+            Response r = Response.ok(result.getShiftList().iterator().next()).build();
             log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
                     + "|returns " + result.getShifts().size() + " shifts");
 
