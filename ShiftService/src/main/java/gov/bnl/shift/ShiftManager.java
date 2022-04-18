@@ -261,6 +261,8 @@ public class ShiftManager {
             } else {
                 typedQuery.setMaxResults(Integer.valueOf(500));
             }
+        } else {
+            typedQuery.setMaxResults(Integer.valueOf(500));
         }
 
         if(matches.isEmpty()) {
@@ -437,6 +439,7 @@ public class ShiftManager {
         final CriteriaQuery<Shift> select = cq.select(from);
         cq.orderBy(cb.desc(from.get(Shift_.startDate)));
         final TypedQuery<Shift> typedQuery = em.createQuery(select);
+        typedQuery.setMaxResults(500);
         JPAUtil.startTransaction(em);
         try {
             Shifts result = new Shifts();

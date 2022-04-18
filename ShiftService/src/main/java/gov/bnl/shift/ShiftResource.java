@@ -48,6 +48,7 @@ public class ShiftResource {
     @GET
     @Produces({"application/xml", "application/json"})
     public Response listAll() {
+        log.info("searching for all shifts");
         final DbConnection db = DbConnection.getInstance();
         final ShiftManager shiftManager = ShiftManager.getInstance();
         final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
@@ -62,7 +63,7 @@ public class ShiftResource {
             }
             db.commit();
             final Response r = Response.ok(result).build();
-            log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
+            log.info(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
                     + "|returns " + result.getShifts().size() + " shifts");
             return r;
         } catch (ShiftFinderException e) {
@@ -120,15 +121,12 @@ public class ShiftResource {
         final ShiftManager shiftManager = ShiftManager.getInstance();
         final String user = securityContext.getUserPrincipal() != null ? securityContext.getUserPrincipal().getName() : "";
         try {
-            MultivaluedMap<String, String> map = new MultivaluedHashMap(uriInfo.getQueryParameters());
+            MultivaluedMap<String, String> map = new MultivaluedHashMap<String, String>(uriInfo.getQueryParameters());
             map.add("type", type);
 
-            Shifts result = new Shifts();
-            shiftManager.findShiftsByMultiMatch(map).getShifts().stream().forEach(shift -> {
-                result.add(shift);
-            });
-            Response r = Response.ok(result.getShiftList().iterator().next()).build();
-            log.fine(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
+            Shifts result = shiftManager.findShiftsByMultiMatch(map);
+            final Response r = Response.ok(result.getShiftList().iterator().next()).build();
+            log.info(user + "|" + uriInfo.getPath() + "|GET|OK|" + r.getStatus()
                     + "|returns " + result.getShifts().size() + " shifts");
 
             return r;
